@@ -1,0 +1,47 @@
+[project]
+name = "DSCALE"
+
+description = "Downscaling Scenarios to the Country level for Assessment of Low carbon Emissions"
+
+dynamic = ["version"]
+
+authors = [
+  {name = "Fabio Sferra", email = "sferra@iiasa.ac.at"},
+  {name = "Florian Maczek", email = "maczek@iiasa.ac.at"},
+  {name = "Philip Hackstock", email = "hackstock@iiasa.ac.at"},
+]
+
+requires-python = ">=3.7"
+
+dependencies = [
+  "pandas",
+  "numpy",
+  "matplotlib",
+  "scipy",
+  "pyyaml",
+  "joblib",
+  "psutil",
+  "pycountry",
+  "alive-progress",
+  "openpyxl",
+  "xlrd",
+  "seaborn"
+]
+
+[project.optional-dependencies]
+
+tests = ["pytest<8", "pytest-lazy-fixture"]
+
+dev = ["mypy", "black >= 22"]
+
+pandas-performance = ["numexpr==2.6.2", "bottleneck==1.2.1"]
+
+[tool.setuptools]
+packages = ["downscaler"]
+
+[tool.setuptools_scm]
+write_to = "downscaler/_version.py"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=67", "setuptools_scm[toml]>=7.1"]
