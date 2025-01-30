@@ -37,14 +37,14 @@ development.
 ## How to run
 
 0. If you have already installed the downscaler please skip this, and go to (`1. get the data`). Otherwise, please setup/install downscaler code:
-	- a. clone downscaler_repo
+	- a. clone DSCALE
 	- b. create virtual environment
 	- c. pip install -e .[dev,test] inside the cloned folder
 
 1. get the data
-    - a. download Regional IAMs data e.g. from https://data.ece.iiasa.ac.at/eu-climate-advisory-board/#/downloads; place in e.g. downscaler_repo\input_data\project_folder\snapshot_v1\...
+    - a. download Regional IAMs data e.g. from https://data.ece.iiasa.ac.at/eu-climate-advisory-board/#/downloads; place in e.g. DSCALE\input_data\project_folder\snapshot_v1\...
     - b. Make sure you have all input data (historical data etc.) required for the downscaling. Please note that some of the data are proprietary and cannot be made publicly available. If you have questions please contact sferra@iiasa.ac.at 
-    - c. get region mapping file(s) placed in same project folder, e.g. downscaler_repo\input_data\project_folder\snapshot_v1\...
+    - c. get region mapping file(s) placed in same project folder, e.g. DSCALE\input_data\project_folder\snapshot_v1\...
     
 
 2.  Run the downscaling for a given `project`.
