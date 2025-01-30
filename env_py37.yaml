@@ -1,0 +1,36 @@
+name: dscale_py37
+channels:
+- defaults
+- conda-forge
+dependencies:
+# pinned versions according to Fabio's doc
+- python=3.7
+- pip
+- alive-progress
+- black
+- flake8
+- joblib
+- mypy
+- numpy=1.17.0
+- openpyxl
+- pandas=0.25.1
+- psutil
+- pycountry
+- pyyaml
+- scipy=1.6.2
+- seaborn
+- pytest
+- pytest-cov
+- pytest-lazy-fixture
+- pytest-regressions
+- pytest-xdist
+- xlrd
+- pip:
+  - ipdb
+  - isort
+  - flake8-bugbear
+  - jupyterlab
+  - pre-commit
+  - pycountry
+  - vulture
+# TBR

@@ -1,0 +1,61 @@
+# Custom excludes TBR
+*claus*
+*wip*
+
+# TBI
+.coverage*
+htmlcov
+results/*
+
+# Folders needed to run the downscaling but containing files that are too large
+input_data/*
+.DS_Store
+!README.md
+# Leftover from refactoring
+archive/
+explorer/
+
+# Results folder (will most likely be included once the structure of the output files
+# of the various stages is taken care of)
+results/*/*
+!results/*/README.md
+
+# Virtual Environment
+downscaler_env/
+.python-version
+
+# Caches and checkpoints
+.ipynb_checkpoints/
+__pycache__
+.pytest_cache
+.vscode
+.mypy_cache
+
+downscaler-env*
+venv
+
+Intergral_minimization.ipynb
+
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# version number
+downscaler/_version.py
