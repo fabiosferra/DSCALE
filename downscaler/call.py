@@ -6,15 +6,15 @@ from downscaler.utils import fun_read_csv, fun_get_models, fun_xs, check_missing
 from downscaler.fixtures import iea_countries, check_IEA_countries
 
 # NOTE: Change dictionary below as appropriate
-d= {#'config_file_name':"SIMPLE_hindcasting_enhanced_GDP/config.yaml", # HINDCASTING
-    'config_file_name':"myproject_2024_v2/config.yaml", # HINDCASTING
-    'list_of_models': ['*IMAGE*', '*MESSAGE*',], # ['*']	
-    #'list_of_regions':["SYR","VEN"],# ['*']
-    # 'list_of_targets':["*h*"],# ['*']
-    'file_suffix':'2024_11_15_test',
-    'n_jobs':6,
-    "coerce_errors":True
-    }
+d= {
+    'config_file_name':"project_multiple_regions/config.yaml", # Add path to the `config.yaml` file 
+    'list_of_models': ['*MESSAGE*']	, # Run only the MESSAGE model
+    'list_of_regions': ['*'], # Run all regions
+    'list_of_targets':["*"],# Run all scenarios 
+    'file_suffix':'2025_01_30_test', # Suffix of your file name (should contain a date)
+    'n_jobs':6, # Run of CPUs for job parallelization 
+    "coerce_errors":True # Runs
+}
 
 
 steps=['step0', 'step1', 'step1b','step2', 'step3',
