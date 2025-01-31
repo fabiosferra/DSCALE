@@ -671,7 +671,7 @@ def main(
             known_issues=known_issues,
             aggregate_non_iea_countries=True,
             # aggregate_non_iea_countries=aggregate_non_iea_countries,
-            aggregate_eu_27=True,
+            # aggregate_eu_27=True,
             keep_step5_emissions=keep_step5_emissions,
         )
 
