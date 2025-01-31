@@ -118,8 +118,7 @@ if __name__ == "__main__":
         # config_file_name="NGFS_2023_s_curve/config.yaml", # LOG-LOG/SCURVE Sensitivity analysis
         config_file_name="NGFS_2023/config.yaml", 
         list_of_models=["*MESSAGE*"],
-        # list_of_regions=['*Pacific OECD*', '*Western Euro*', '*China*'],#'
-        list_of_regions=['*Sub*'],
+        list_of_regions=['*Pacific OECD*', '*Western Euro*', '*China*','*Sub*'],
         file_suffix='2025_01_31_Test_replicate_paper',
         list_of_targets=["h_cpol", "o_1p5c"],
         # list_of_targets=["h_cpol",
