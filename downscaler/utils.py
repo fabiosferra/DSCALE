@@ -742,7 +742,7 @@ def make_optimal_list(_df_main, _left_list, _right_list, _r, region, _threshold=
     threshold = _threshold  # 0.95
 
     # print('ORIGINAL LIST', right_final)
-    if all_permutations:
+    if all_permutations and len(_right_list)<=4:
         minval,  right_final, mylist_pos = learning_all_permutations(
                 left_list,
                 right_final,
@@ -15005,8 +15005,8 @@ def fun_calculate_kyoto_gases(df_all, idxname):
 
 def fun_read_primap(
     folder: Path,
-    # file: str = "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv",
-    file:str='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
+    file: str = "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv",
+    # file:str='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
 ) -> pd.DataFrame:
     """Reads PRIMAP dataset
 
@@ -15134,10 +15134,10 @@ def fun_ghg_emi_from_primap(
         Dataframe with historical GHG emissions from PRIMAP
     """
 
-    # file = (
-    #     "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"
-    # )
-    file='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
+    file = (
+        "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"
+    )
+    # file='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
     primap = fun_index_names(fun_read_primap(CONSTANTS.INPUT_DATA_DIR, file), True, int)
     selcols = [int(x) for x in myrange]
     primap = primap.iloc[:, primap.columns.isin(selcols)]
@@ -16885,7 +16885,9 @@ def fun_fill_na_with_previous_next_values_for_selected_vars(df_merged, sel_vars)
 
 # TODO Rename this here and in `main`
 def fun_read_iea_data_from_iamc_format(
-    harmonize_eea_data_until, harmo_vars, file_name="input_reference_iea_2022.csv"
+    harmonize_eea_data_until, harmo_vars, 
+    # file_name="input_reference_iea_2022.csv",
+    file_name="input_reference_iea.csv",
 ):
     result = pd.read_csv(CONSTANTS.INPUT_DATA_DIR / file_name)
     result = result.set_index(["MODEL", "SCENARIO", "REGION", "VARIABLE", "UNIT"])
@@ -24667,10 +24669,16 @@ def fun_harmonize_alpha(t: Optional[int],
         t = max(base_year, _y.replace(0, np.nan).dropna().index.min())
 
     alias_dict= {'s-curve': 'logistic', 'lin':'linear'}
-    if t in list(_y.index):
+    if t in list(_y.index) and t <= 2025:
         if _func == 'log-log':
             info_dict['alpha'] += np.log(_y.loc[t]) - (info_dict['alpha'] + np.log(_x.loc[t]) * info_dict['beta'])
-            info_dict['fit_func'] = func_dict['log-log'](alpha=info_dict['alpha'], beta=info_dict['beta'])
+            try:
+                info_dict['fit_func'] = func_dict['log-log'](alpha=info_dict['alpha'], beta=info_dict['beta'])
+            except ValueError as e: 
+                info_dict['fit_func'] = func_dict['log-log'](alpha=np.nan, beta=np.nan)
+                print(f"Error in fitting function: {e}")
+                print("_y:", _y)
+                print("_x:", _x)
         elif _func == 'linear':
             info_dict['alpha'] += _y.loc[t] - (info_dict['alpha'] + _x.loc[t] * info_dict['beta'])
             info_dict['fit_func'] = func_dict['linear'](alpha=info_dict['alpha'], beta=info_dict['beta'])
