@@ -116,18 +116,12 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 if __name__ == "__main__":
     main_with_yaml_config(
         # config_file_name="NGFS_2023_s_curve/config.yaml", # LOG-LOG/SCURVE Sensitivity analysis
-        config_file_name="myproject_2024_v2/config.yaml", # NGFS 2024 not working
-        # config_file_name="myproject_2024/config.yaml", # NGFS 2024
-        # config_file_name="SIMPLE_hindcasting_enhanced_GDP/config.yaml", # HINDCASTING
+        config_file_name="NGFS_2023/config.yaml", 
         list_of_models=["*MESSAGE*"],
-        # list_of_regions=['AUS', 'CAN', 'CHN', 'HKG', 'MAC', 'NZL', 'TWN'],
-        # list_of_models=['*REMIND*'],
-        # list_of_regions=['*Can*'],
-        # list_of_models=['*'],
-        # list_of_regions=['EU27'],
-        # list_of_regions=['ALB', 'BIH', 'CHE', 'ISL', 'MKD', 'MNE', 'NOR', 'SRB', 'TUR'],
-        file_suffix='2024_11_15_TEST',
-        # list_of_targets=["h_cpol"],
+        # list_of_regions=['*Pacific OECD*', '*Western Euro*', '*China*'],#'
+        list_of_regions=['*Sub*'],
+        file_suffix='2025_01_31_Test_replicate_paper',
+        list_of_targets=["h_cpol", "o_1p5c"],
         # list_of_targets=["h_cpol",
         #                  #'h_ndc', 'o_1p5c'
         #                  ],
@@ -153,20 +147,20 @@ if __name__ == "__main__":
         random_electricity_weights=False,
         n_jobs=6,
         step0=False,
-        step1=True,
-        step1b=False,
-        step2=False,
-        # # # # # # # # step2_pick_one_pathway=False,
-        # # # # # # # # # # fun_finalize_step2_all_targets=False,
-        step3=False,
-        step5=False,  # additional variables
-        step5b=False,  # sectorial emissions and revenues
-        step5c=False,  # non-co2
-        step5c_bis=False,  # hydrogen share aynd trade variables
-        step5c_tris=False,  # afolu
-        step5d=False,  # eu27 and aggregate results from multiple files
-        step5e=False,  # harmonize with historical data
-        step4=False,
-        step5e_after_policy=False,
+        # step1=False,
+        # step1b=False,
+        # step2=False,
+        # # # # # # # step2_pick_one_pathway=False,
+        # # # # # # # # # fun_finalize_step2_all_targets=False,
+        # step3=False,
+        # step5=False,  # additional variables
+        # step5b=False,  # sectorial emissions and revenues
+        # step5c=False,  # non-co2
+        # step5c_bis=False,  # hydrogen share aynd trade variables
+        # step5c_tris=False,  # afolu
+        # step5d=False,  # eu27 and aggregate results from multiple files
+        # step5e=False,  # harmonize with historical data
+        # step4=False,
+        # step5e_after_policy=False,
         step6=False,
     )
