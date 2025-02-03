@@ -17693,7 +17693,7 @@ def fun_log_log_graphs(
         ylab=f"{ylab} (log scale)"
         xlab=f"{xlab} (log scale)"
     else:
-        plt.ylim(top=1.05e2, bottom=0)
+        plt.ylim(top=1.05e2, bottom=0.3)
 
     plt.ylabel(f"{ylab}")
     plt.xlabel(f"{xlab}")
@@ -17767,7 +17767,7 @@ def fun_plotting_downscaled_results_log_log(
             ["CONVERGENCE", "METHOD"]
         )
         country_gdpcap = (
-            country_gdpcap.xs(scenario, level="TARGET")
+            country_gdpcap.xs(scenario, level="TARGET").xs(func_type, level="FUNC")
             .droplevel("MODEL")
             .unstack("ISO")
         )
@@ -17825,7 +17825,7 @@ def fun_plotting_downscaled_results_log_log(
                 )
                 country_ei = numconv / denconv
                 country_ei = (
-                    country_ei.xs(scenario, level="TARGET")
+                    country_ei.xs(scenario, level="TARGET").xs(func_type, level="FUNC")
                     .droplevel("MODEL")
                     .unstack("ISO")
                 )
@@ -23569,7 +23569,7 @@ def correct_gdp_and_ei(df_graph:pd.DataFrame, country_gdpcap:pd.Series, country_
     - tuple: Corrected country_gdpcap and country_ei.
     """
     # GDP correction to match 2010 data
-    if 'GDPCAP' in df_graph.index:
+    if 'GDPCAP' in df_graph.columns:
         deflator = (df_graph[df_graph.TIME == 2010]['GDPCAP'] / country_gdpcap.loc[2010]).dropna()
     else:
         gdpcap=df_graph[df_graph.TIME == 2010]['GDP|PPP']/df_graph[df_graph.TIME == 2010]['Population']
