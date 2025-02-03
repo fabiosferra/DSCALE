@@ -2372,135 +2372,44 @@ def stacked_data_step5(
             return fig
 
 if __name__ == "__main__":
-    # FOR HINDCASTING PLEASE USE `hindcasting_results_comparison.py`
-    # main() # EUAB
-    # NGFS Below:
     main(
-        # file="MESSAGEix-GLOBIOM 1.1-M-R12_NGFS_2023_2023_06_20_2018_harmo_step5e_WITH_POLICY_Scenario_Explorer_upload_FINAL.xlsx",
-        # files=["NGFS_2023_2023_06_20_2018_harmo_step5e_WITH_POLICY_None.csv"],
-        # files="NGFS_phase3_with_GHG_emissions.csv",
-        # files=["Emissions_clock_2023_09_15_v3_sent.csv"],
-        files=None,
-        models=["*GCAM*"],#"*GCAM*", 
-        # models=["*REMIND*"],
-        # models=["*IMAGE*"],
-        # models=["*REMIND*"],
-        # files=None,  # ["2023_09_12_harmo.csv"],
-        project="NGFS_2024",
-        # project="emissions_clock",
-        # project="SIMPLE_hindcasting",
-        # project=None,
-        # step="step2b",
-        step='step1',
-        # files={'MESSAGEix-GLOBIOM 1.1-M-R12':'MESSAGEix-GLOBIOM 1.1-M-R12_Pacific OECDr_h_cpol_2023_12_21.csv'},
-        # # NOTE: NGFS 2023 has all models with different suffix file names
-        # files=[
-        #     "MESSAGEix-GLOBIOM 1.1-M-R12_NGFS_2023_2023_08_03_2018_harmo_step5e_WITH_POLICY_None.csv",
-        #     "REMIND-MAgPIE 3.2-4.6_NGFS_2023_2023_07_14_2018_harmo_step5e_WITH_POLICY_None.csv",
-        #     "GCAM 6.0 NGFS_NGFS_2023_2023_08_25_2018_harmo_step5e_WITH_POLICY_None.csv",
-        # ],
-        # files=[
-        #     # "IEA_PRIMAP_GCAM 6.0 NGFS_SIMPLE_hindcasting_2023_07_20_2010_harmo_step5e_Scenario_Explorer_upload_FINAL.xlsx",
-        #     # "IEA_PRIMAP_REMIND-MAgPIE 3.2-4.6_SIMPLE_hindcasting_2023_07_20_2010_harmo_step5e_Scenario_Explorer_upload_FINAL.xlsx",
-        #     # "IEA_PRIMAP_MESSAGEix-GLOBIOM 1.1-R12_SIMPLE_hindcasting_2023_07_20_2010_harmo_step5e_Scenario_Explorer_upload_FINAL.xlsx"
-        #     # "IEA_PRIMAP_MESSAGEix-GLOBIOM 1.1-R12_SIMPLE_hindcasting_2023_07_20_2010_harmo_step5e_None.csv",
-        #     # "IEA_PRIMAP_REMIND-MAgPIE 3.2-4.6_SIMPLE_hindcasting_2023_07_20_2010_harmo_step5e_None.csv",
-        # ],
-        sel_vars=[
-            # "Population",
-            "Final Energy",
-            # "Final Energy_v2",
-            # "Primary Energy|Coal",
-            # "Primary Energy|Oil",
-            # "Primary Energy|Gas",
-            # "Emissions|CO2|Energy",
-            # "Emissions|Kyoto Gases (incl. indirect LULUCF)",
-            # "Final Energy|Electricity",
-            # "Emissions|CO2",
-            # "Emissions|CO2|Energy",
-            # "Emissions|CO2|Industrial Processes",
-            # ['Final Energy|Industry', 'Final Energy|Transportation','Final Energy|Residential and Commercial'], # stacked variables plot
-            
-            # "Final Energy|Electricity",
-            # "Secondary Energy|Electricity|Coal"
+    files=None,
+    models=["*MESSAGE*"],
+    project='NGFS_2023',
+    step='step1',
+    sel_vars=[
+        "Final Energy", # stacked countries plot
         ],
-        check_missing_data=False,
-        markers_dict=markers_dict,
-        # countrylist=list(markers_dict.keys()),
-        # countrylist= iea_countries,#, ['DEU'],#['USA','CHN','IND','EU27'],  #["SSD"],  # ["ISL"],  #
-        countrylist=['PHL'], # EU
-        # countrylist=['MNG'],
-        # countrylist=['DOM', 'GTM', 'HTI', 'CUB', 'SLV', 'HND', 'CRI', 'TTO', 'NIC', 'JAM', 'BHS', 'BLZ', 'BRB', 'ATG', 'GRD', 'ABW', 'VCT', 'LCA', 'KNA'],
-        # iea_countries_only=False, # NEEDS to be False for stacked countries graphs!!!
-        # countrylist=['OMN'],# 'NZL','JPN'
-        # countrylist=['ESH','ERI','PRK'], # REMIND countries log-log graphs
-        # countrylist=['TKL','HTI','ERI','PRK','QAT' ], # IMAGE countries log-log graphs
-        # countrylist=fun_eu27(),
-        # countrylist=['AUS', 'NZL','JPN'],
-        # countrylist=['EU27']+fun_eu27(),
-        # countrylist=[#"AUS"
-        #     "DEU"
-        #     # 'ETH', 
-        #     #'JPN','NZL' , 'CHN' # STEP1 sensitivity graph
-        #              ],
-        # countrylist=[
-        #     "MESSAGEix-GLOBIOM 1.1-M-R12|Latin America and the Caribbean",
-        # ],
-        # sel_scen=["HISTCR"],  # ["SSP2-NPi"],  #
-        # sel_scen=['h_cpol','h_ndc', 'o_2c','o_1p5c'],
-        # sel_scen=['SDP_EI-1p5C'],
-        # sel_scen=['SDP_EI-1p5C', 'SDP_MC-1p5C', 'SDP_RC-1p5C', 'SSP2-1p5C', 'SSP2-NPi'],
-        # sel_scen=['d_delfrag'],#'h_cpol',"*1p5C*"],
-        # sel_scen=['*h*'],
-        sel_scen=['h_cpol', "*1p5C*", 'Historic data'],
-        # sel_scen=['*Current*',"*Net *"],
-        # sel_scen=['h_cpol', 'o_2c','o_1p5c'],
-        # sel_scen=[
-        #     "h_cpol",
-        #     "h_ndc",
-        #     # "d_delfrag",
-        #     # "d_strain",
-        #     "o_2c",
-        #     ### "o_lowdem",
-        #     "o_1p5c",
-        # ],
-        palette=None,#'flare',
-        # create_dashbord= "NGFS_2024_dashboard.pdf",
-        create_dashbord= None,
-        eu_ab_plot=False,
-        ngfs_plot=False, # Simple Line plots across model/scenario (one plot for each country)
-        florian_plot=False,
-        ternary_plot=False,
-        top_20_macc_plot= None,# 'test_macc.csv', #'Main_table.csv',
-        # legend_color_box=None,  # for Florian's plot
-        # legend_ls_box="lower left",
-        combine_df_with_most_recent_scenarios=False,
-        log_log_graphs=True,
-        stacked_countries_plot=False,
-        phase_out_plot=False, # phase out dates by countries
-        carbon_budget_plot=False,
-        step1_sensitivity=True, 
-        step1_extended_sensitivity = False,
-        analyse_drivers=False,
-        split_df_by_model_and_save_to_csv=False,
-        # If you want to plot individual method in each graph, please provide a list of `sel_step1_methods`
-        sel_step1_methods=None,  # If None will plot all methods in a single graph. Otherwise provide a list of methods
-        # sel_step1_methods=[
-        #     "wo_smooth_enlong_ENLONG_RATIO",
-        #     "GDPCAP_False_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
-        #     "GDPCAP_False_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
-        #     "GDPCAP_True_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
-        #     "GDPCAP_True_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
-        #     "TIME_False_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
-        #     "TIME_False_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
-        #     "TIME_True_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
-        #     "TIME_True_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
-        # ],
-    )
-#
-
-# from typing import Dict, List, Union, Optional
-# import pandas as pd
-# import matplotlib.pyplot as plt
-
+    markers_dict=markers_dict,
+    iea_countries_only=True, 
+    countrylist=["AUS" ],
+    sel_scen=['h_cpol', "*1p5C*"],
+    palette=None,#'flare',
+    create_dashbord=None,  # "NGFS_2022_dashboard.pdf"
+    eu_ab_plot=False,
+    ngfs_plot=False, # Simple Line plots across model/scenario
+    florian_plot=False,
+    top_20_macc_plot= None,# 'test_macc.csv', #'Main_table.csv',
+    log_log_graphs=True,
+    stacked_countries_plot=False,
+    phase_out_plot=False,
+    carbon_budget_plot=False,
+    step1_sensitivity=True, 
+    step1_extended_sensitivity = False,
+    analyse_drivers=False,
+    split_df_by_model_and_save_to_csv=False,
+    # If you want to plot individual method in each graph, please provide a list of `sel_step1_methods`
+    # sel_step1_methods=None,  # If None will plot all methods in a single graph. Otherwise provide a list of methods
+    sel_step1_methods=[
+        "wo_smooth_enlong_ENLONG_RATIO",
+        # "GDPCAP_False_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
+        # "GDPCAP_False_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
+        # "GDPCAP_True_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
+        # "GDPCAP_True_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
+        # "TIME_False_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
+        # "TIME_False_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
+        # "TIME_True_ENSHORT_REF_to_ENLONG_RATIO_2050_thenENLONG_RATIO",
+        # "TIME_True_ENSHORT_REF_to_ENLONG_RATIO_2100_thenENLONG_RATIO",
+    ],
+)
 
