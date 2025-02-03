@@ -182,17 +182,19 @@ This code will not work if you don't you have all input data (historical data et
     Please note that `6_Visuals` folder contains graphs of the downscaled results (that will be created if you run  `step6`).
 
 4. Please open the log file, located in the `input_data/project/logs` to check if your run was successful.
-```
-└── 📁input_data
-    └── 📁project
-        └── 📁logs
-            └── log_config.yaml_2023-07-11_17-51-22.log
     ```
+    └── 📁input_data
+        └── 📁project
+            └── 📁logs
+                └── log_config.yaml_2023-07-11_17-51-22.log
+    ```
+    
     If your run was successful, the log file will look like the example below:
     ```
     on 1: 2024-07-12 17:02:56 INFO     Running model *MESSAGE*
     on 1: 2024-07-12 17:02:59 INFO     Sucessfully ran file: snapshot_all_regions_RAW_MESSAGEix-GLOBIOM 2.0-M-R12-NGFS.csv
     ```
+
     Otherwise, please read the log file to get help on how to solve the issue.
 
 ### Run sensitivity analysis for the `Pacific OECD` region in the `h_cpol` (current policy) scenario
