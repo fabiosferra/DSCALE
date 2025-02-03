@@ -198,14 +198,15 @@ This code will not work if you don't you have all input data (historical data et
 
 ### Run sensitivity analysis for the `Pacific OECD` region in the `h_cpol` (current policy) scenario
 To run a sensitivity analysis, for the current policy scenario of the Pacific OECD region, please update the `run_multiple_files` as follows:
-    ```
-        file_suffix='2025_01_31_Test_replicate_paper_sensitivity',
-        list_of_regions=['*Pacific OECD*'],
-        list_of_targets=["h_cpol"],
-        func_type = ["log-log","s-curve"],
-        random_electricity_weights=True,
-        run_sensitivity_from_step2_to_5=True,
-    ```
+
+```
+file_suffix='2025_01_31_Test_replicate_paper_sensitivity',
+list_of_regions=['*Pacific OECD*'],
+list_of_targets=["h_cpol"],
+func_type = ["log-log","s-curve"],
+random_electricity_weights=True,
+run_sensitivity_from_step2_to_5=True,
+```
 
 The sensitivity analysis results for final energy will be saved in the  `📁1_Final_Energy` folder.
 The results for secondary energy electricity will be saved in the `📁2_Primary_and_Secondary_Energy` folder.
@@ -215,73 +216,74 @@ To run the hindcasting, you need historical energy data from IEA and emissiosn d
 Please run `create_regional_files_for_hindcasting.py` to create regional data (to be used as input for the downscaling), based on regional mappings from the GCAM, MESSAGE and REMIND models.
 Please save the data in a new project folder (e.g. SIMPLE_hincasting), inside the `input_data` folder
 Please run the downscaling (using `run_multuple_files.py`) by referring to this new project folder. Please create a new  config.yaml (within this project folder)  with the following settings:
-    ```
-    default_ssp_scenario: "SSP2"
-    list_of_models: ["*"]
-    list_of_regions: ["*"]
-    list_of_targets: ["*"]
-    _gdp_pop_down: True
-    gdp_model: "NGFS"
-    pop_model: "NGFS"
-    add_gdp_pop_data: True
-    harmonize_eea_data_until: 2010
-    step1: True
-    step1b: True
-    step2: True
-    step2_pick_one_pathway: False
-    step3: True
-    step5: True # additional variables
-    run_step5_with_policies: False
-    step5b: False # sectorial emissions and revenues
-    step5c: True # non-co2
-    step5c_bis: True # hydrogen share and trade variables
-    step5c_tris: True # afolu
-    step5d: True # eu27
-    step5e: True # harmonize with historical data
-    step4: True # policies
-    step5e_after_policy: True # harmonize with historical data (after policy adjustments)
-    step6: True # by default False
-    co2_energy_only: False
-    grassi_dynamic: True
-    grassi_scen_mapping: { "SSP2 4.5": ["HISTCR"] }
-    project_folder: "SIMPLE_hindcasting" 
-    file_suffix: "2023_07_20" 
-    n_jobs: 6
-    step0: False
-    model_folders: "snapshot_v1" 
-    snapshot_with_all_models: null 
-    country_marker_list: null
-    previous_projects_folders: null
-    ref_target: "HISTCR"
-    default_ssp_scenario: "SSP2"
-    list_of_models: ["*"]
-    list_of_regions: ["*"]
-    list_of_targets: ["*"]
-    _gdp_pop_down: True
-    gdp_model: "NGFS"
-    pop_model: "NGFS" 
-    add_gdp_pop_data: True
-    harmonize_eea_data_until: 2010
-    step1: True
-    step1b: True
-    step2: True
-    step2_pick_one_pathway: False
-    step3: True
-    step5: True # additional variables
-    run_step5_with_policies: False
-    step5b: False # sectorial emissions and revenues
-    step5c: True # non-co2
-    step5c_bis: True # hydrogen share and trade variables
-    step5c_tris: True # afolu
-    step5d: True # eu27
-    step5e: True # harmonize with historical data
-    step4: True # policies
-    step5e_after_policy: True # harmonize with historical data (after policy adjustments)
-    step6: True # by default False
-    co2_energy_only: False
-    grassi_dynamic: True
-    grassi_scen_mapping: { "SSP2 4.5": ["HISTCR"] }
-    ```
+
+```
+default_ssp_scenario: "SSP2"
+list_of_models: ["*"]
+list_of_regions: ["*"]
+list_of_targets: ["*"]
+_gdp_pop_down: True
+gdp_model: "NGFS"
+pop_model: "NGFS"
+add_gdp_pop_data: True
+harmonize_eea_data_until: 2010
+step1: True
+step1b: True
+step2: True
+step2_pick_one_pathway: False
+step3: True
+step5: True # additional variables
+run_step5_with_policies: False
+step5b: False # sectorial emissions and revenues
+step5c: True # non-co2
+step5c_bis: True # hydrogen share and trade variables
+step5c_tris: True # afolu
+step5d: True # eu27
+step5e: True # harmonize with historical data
+step4: True # policies
+step5e_after_policy: True # harmonize with historical data (after policy adjustments)
+step6: True # by default False
+co2_energy_only: False
+grassi_dynamic: True
+grassi_scen_mapping: { "SSP2 4.5": ["HISTCR"] }
+project_folder: "SIMPLE_hindcasting" 
+file_suffix: "2023_07_20" 
+n_jobs: 6
+step0: False
+model_folders: "snapshot_v1" 
+snapshot_with_all_models: null 
+country_marker_list: null
+previous_projects_folders: null
+ref_target: "HISTCR"
+default_ssp_scenario: "SSP2"
+list_of_models: ["*"]
+list_of_regions: ["*"]
+list_of_targets: ["*"]
+_gdp_pop_down: True
+gdp_model: "NGFS"
+pop_model: "NGFS" 
+add_gdp_pop_data: True
+harmonize_eea_data_until: 2010
+step1: True
+step1b: True
+step2: True
+step2_pick_one_pathway: False
+step3: True
+step5: True # additional variables
+run_step5_with_policies: False
+step5b: False # sectorial emissions and revenues
+step5c: True # non-co2
+step5c_bis: True # hydrogen share and trade variables
+step5c_tris: True # afolu
+step5d: True # eu27
+step5e: True # harmonize with historical data
+step4: True # policies
+step5e_after_policy: True # harmonize with historical data (after policy adjustments)
+step6: True # by default False
+co2_energy_only: False
+grassi_dynamic: True
+grassi_scen_mapping: { "SSP2 4.5": ["HISTCR"] }
+```
 
 
 ### Visualization scripts
