@@ -141,34 +141,33 @@ This code will not work if you don't you have all input data (historical data et
 
         ```
     - c. RUN `run_multiple_files.py` for your project for all steps by changing the last bit of `run_multiple_files.py`, e.g.
-    ```python
-        main_with_yaml_config(
-        config_file_name="NGFS_2023/config.yaml", 
-        list_of_models=["*MESSAGE*"],
-        list_of_regions=['*Pacific OECD*', '*Western Euro*', '*China*','*Sub*'],
-        file_suffix='2025_01_31_Test_replicate_paper',
-        list_of_targets=["h_cpol", "o_1p5c"],
-        run_sensitivity_from_step2_to_5=False,
-        random_electricity_weights=False,
-        n_jobs=6,
-        step0=False,
-        # step1=False,
-        # step1b=False,
-        # step2=False,
-        # step3=False,
-        # step5=False,  # additional variables
-        # step5b=False,  # sectorial emissions and revenues
-        # step5c=False,  # non-co2
-        # step5c_bis=False,  # hydrogen share aynd trade variables
-        # step5c_tris=False,  # afolu
-        # step5d=False,  # eu27 and aggregate results from multiple files
-        # step5e=False,  # harmonize with historical data
-        # step4=False,
-        # step5e_after_policy=False,
-        step6=False,
-    )
-
-    ```
+        ```python
+            main_with_yaml_config(
+            config_file_name="NGFS_2023/config.yaml", 
+            list_of_models=["*MESSAGE*"],
+            list_of_regions=['*Pacific OECD*', '*Western Euro*', '*China*','*Sub*'],
+            file_suffix='2025_01_31_Test_replicate_paper',
+            list_of_targets=["h_cpol", "o_1p5c"],
+            run_sensitivity_from_step2_to_5=False,
+            random_electricity_weights=False,
+            n_jobs=6,
+            step0=False,
+            # step1=False,
+            # step1b=False,
+            # step2=False,
+            # step3=False,
+            # step5=False,  # additional variables
+            # step5b=False,  # sectorial emissions and revenues
+            # step5c=False,  # non-co2
+            # step5c_bis=False,  # hydrogen share aynd trade variables
+            # step5c_tris=False,  # afolu
+            # step5d=False,  # eu27 and aggregate results from multiple files
+            # step5e=False,  # harmonize with historical data
+            # step4=False,
+            # step5e_after_policy=False,
+            step6=False,
+        )
+        ```
 3.  Results will be saved in the `results` folder. This folder is divided in different sub-folders reflecting the different downscaling steps. If you run all steps you will find the final data in the `5_Explorer_and_New_Variables` folder
     ```
     └── 📁results
@@ -199,18 +198,19 @@ This code will not work if you don't you have all input data (historical data et
 
 ### Run sensitivity analysis for the `Pacific OECD` region in the `h_cpol` (current policy) scenario
 To run a sensitivity analysis, for the current policy scenario of the Pacific OECD region, please update the `run_multiple_files` as follows:
-    ```python
-            file_suffix='2025_01_31_Test_replicate_paper_sensitivity',
-            list_of_regions=['*Pacific OECD*'],
-            list_of_targets=["h_cpol"],
-            func_type = ["log-log","s-curve"],
-            random_electricity_weights=True,
+    ```
+        file_suffix='2025_01_31_Test_replicate_paper_sensitivity',
+        list_of_regions=['*Pacific OECD*'],
+        list_of_targets=["h_cpol"],
+        func_type = ["log-log","s-curve"],
+        random_electricity_weights=True,
         run_sensitivity_from_step2_to_5=True,
     ```
+
 The sensitivity analysis results for final energy will be saved in the  `📁1_Final_Energy` folder.
 The results for secondary energy electricity will be saved in the `📁2_Primary_and_Secondary_Energy` folder.
 
-### Hindcasting tuns 
+### Hindcasting runs 
 To run the hindcasting, you need historical energy data from IEA and emissiosn data from PRIMAP. 
 Please run `create_regional_files_for_hindcasting.py` to create regional data (to be used as input for the downscaling), based on regional mappings from the GCAM, MESSAGE and REMIND models.
 Please save the data in a new project folder (e.g. SIMPLE_hincasting), inside the `input_data` folder
