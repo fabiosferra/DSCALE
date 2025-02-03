@@ -126,6 +126,7 @@ def main(
     resolve_inconsistencies_in_step1b:bool =False,
     add_only_revenues:bool=True,
     keep_step5_emissions:Optional[bool]=None,
+    random_electricity_weights = False,
     # aggregate_non_iea_countries=True, # after step4
     **kwargs,
 ):
@@ -147,7 +148,6 @@ def main(
 
     use_step1b_harmo_data = True
     elc_trade_adj_input = True  ## Minimise trade True/False
-    random_electricity_weights = False
     seed_range = range(701, 703, 1)
 
     ## Other parameters below - do not modify

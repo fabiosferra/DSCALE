@@ -88,7 +88,7 @@ def main(
     target_patterns: Union[str, list] = "*",
     random_electricity_weights: bool = False,
     ## Maximum number of simulations with random electricity weights
-    range_rand_elc_weights: range = range(1, 10),
+    range_rand_elc_weights: range = range(1, 1000),
     elc_trade_adj: bool = True,
     csv_out: str = "round_1p4_enlong_reg_lenght",
     df_iam_all_input=None,
