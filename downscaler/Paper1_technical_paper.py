@@ -1508,12 +1508,12 @@ if __name__ == "__main__":
         project='NGFS_2023',
         # figure_2=True, # Energy Intensity plot
         # figure_4=True, # Figure 4 (stacked plot)
-        # figure_5=True, # Figure 5 (without parallel coordinates)
-        # figure_5_parallel=True, # Figure 5 (parallel coordinates)
-        # figure_72_boxplot=True, # Figure 7.2 (Step 2b sensitivity analysis) - Boxplot
-        # figure_step2b_violin_plot=True, # Step 2b sensitivity analysis (JUST WEIGHTS) - Violin plot - # CRAMERY MYPALETTE
-        # figure_72_violin=True, # Figure 7.2 (Step 2b sensitivity analysis: WEIGHTS/DEMAND/CONVERGENCE) - Violin
-        figure_73_weights_scatter=True, # Figure 7.3 (Step 2b sensitivity analysis) - Scatter plot for SUPPLEMENTARY INFORMATION
-        # figure_8=True, # Figure 8 (hindcasting)
+        # figure_5=True, # Figures 5-7 (without parallel coordinates)
+        # figure_5_parallel=True, # Figures 5-7 (parallel coordinates)
+        # figure_72_boxplot=True, # NOT USED (Step 2b sensitivity analysis) - Boxplot
+        # figure_step2b_violin_plot=True, Figure 8 # Step 2b sensitivity analysis (JUST WEIGHTS) - Violin plot - # CRAMERY MYPALETTE
+        # figure_72_violin=True, # Figures 9 and S5 (Step 2b sensitivity analysis: WEIGHTS/DEMAND/CONVERGENCE) - Violin
+        figure_73_weights_scatter=True, # Figures S6-S14 (Step 2b sensitivity analysis) - Scatter plot for SUPPLEMENTARY INFORMATION
+        # figure_8=True, # Figure 10 (hindcasting)
         )
 
