@@ -15108,6 +15108,7 @@ def fun_ghg_emi_from_primap(
     primap_dict: Optional[dict] = None,
     myrange: range = range(1990, 2023),
     scenario: str = "HISTCR",
+    file = "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"
 ) -> pd.DataFrame:
     """Returns historical ghg data from PRIMAP for selected countries (`iso_list`) and for a give
     time period range (`myrange`)
@@ -15128,15 +15129,15 @@ def fun_ghg_emi_from_primap(
         Range of historical time periods, by default range(1990, 2020)
     scenario: str
         Scenario from primap db (by default country-reported data is prioritized over third-party data), by default 'HISTCR'
+    file: str
+        Name of PRIMAP dataset (.csv), by default "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"
     Returns
     -------
     pd.DataFrame
         Dataframe with historical GHG emissions from PRIMAP
     """
 
-    file = (
-        "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"
-    )
+
     # file='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
     primap = fun_index_names(fun_read_primap(CONSTANTS.INPUT_DATA_DIR, file), True, int)
     selcols = [int(x) for x in myrange]
