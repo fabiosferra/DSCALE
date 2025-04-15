@@ -140,7 +140,7 @@ def main(
     figure_72_boxplot=False,
     figure_72_violin=False,
     figure_73_weights_scatter=False, # Scatter plot: shows which criteria (used in the random weights) influence the results (eg. SOL in AUS is mainly driven by cost curves criteria)
-    figure_8=False,
+    figure_8=False, # hindcasting
 ):
     if figure_2:
         import plotly.express as px
@@ -164,14 +164,31 @@ def main(
         dfplot['LNPOP']=[max(1e-10,np.log(x)) for x in dfplot['POPULATION']]
         dfplot=dfplot.dropna()
 
+        # Define the BatlowS palette
+        # import cmcrameri.cm as cm
+        from matplotlib import colors as mcolors
+
+        # Extract 50 evenly spaced colors from the batlowS colormap 
+        # If you want to change the color code sequence you can play around with `np.linspace(0, 1, 50)`
+        batlowS_colors_hex = [mcolors.to_hex(c) for c in cm.batlowS(np.linspace(0, 1, 50))]
+
         # Actual plot
         fig = px.scatter(dfplot, 
                 x="GDPCAP", y="EI", 
                 # animation_frame="year", animation_group="country",
                 size="POPULATION", color="ISO", hover_name="ISO", facet_col="continent",
                 template='plotly_white',
+                color_discrete_sequence=batlowS_colors_hex,  # Use the BatlowS colors
                 log_x=True, log_y=True, size_max=35 ,#range_x=[0.0001,1e6]#, range_y=[25,90]
+                labels={"GDPCAP": "GDP per capita (PPP) / year", "EI": "MJ/ USD (PPP)"}
                 )
+        fig.update_layout(
+            title_text="Final Energy Intensity",
+            title_x=0.5,  # Center the title
+            title_font_size=24,  # Optional: adjust font size
+            # xaxis_title="GDP per capita (PPP) per year",
+            # yaxis_title="MJ/ USD (PPP)"
+            )
 
         # Customize facet column titles
         fig.for_each_annotation(lambda a: a.update(text=a.text.split('=')[-1]))
@@ -669,8 +686,8 @@ def main(
                                         "IEA_PRIMAP_REMIND-MAgPIE 3.2-4.6",
                                     ],
                                 read_from_step="step5",
-                                countrylist= iea_countries,
-                                # countrylist=['AUS'],
+                                # countrylist= iea_countries,
+                                countrylist=["TUR","MOZ","FRA","HKG","CUB",'AUS'],
                                 mypath=CONSTANTS.CURR_RES_DIR('step5')/'Step5e_visuals'/'Paper1_technical_paper',
                             )
 
@@ -892,7 +909,10 @@ def fun_scatter_plots_criteria_weights(
     """
     
     # Create a color palette to differentiate between paths
-    palette = sns.color_palette("husl", len(df_dict))
+    # palette = sns.color_palette("husl", len(df_dict))
+    from matplotlib.colors import to_rgb
+    palette = [mcolors.to_hex(c) for c in cm.batlowS(np.linspace(0, 1, len(df_dict)))]
+    palette = [to_rgb(color) for color in palette]
 
     # Create subplots with tight layout
     fig, axes = plt.subplots(len(criteria), len(countries), figsize=(15, 10))  
@@ -919,6 +939,10 @@ def fun_scatter_plots_criteria_weights(
 
                 # Create scatter plot for the current criterion
                 ax.scatter(y=data[t], x=data[criterion], label=path, color=palette[k], alpha=0.7)
+            
+            if fuel=='BIO':
+                # Set ylim scale for BIO 
+                ax.set_ylim(-0.075, 0.075)
 
             # Set the title for the subplot
             if j == 0:  # Set title only on the first row
@@ -1479,17 +1503,17 @@ if __name__ == "__main__":
     main(
         # figure_step2b_boxplot=True, # Step 2b sensitivity analysis - Boxplot
         # figure_step2b_violin_plot=True, # Step 2b sensitivity analysis - Violin plot - # CRAMERY MYPALETTE
-        models=["*MESSAGE*"],
+        models=["*"],
         # files={'MESSAGEix-GLOBIOM 1.1-M-R12':'MESSAGEix-GLOBIOM 1.1-M-R12_NGFS_2023_2025_01_31_Test_replicate_paper_2018_harmo_step5e_WITH_POLICY_None.csv'},
         project='NGFS_2023',
-        figure_2=True, # Energy Intensity plot
-        figure_4=True, # Figure 4 (stacked plot)
+        # figure_2=True, # Energy Intensity plot
+        # figure_4=True, # Figure 4 (stacked plot)
         # figure_5=True, # Figure 5 (without parallel coordinates)
         # figure_5_parallel=True, # Figure 5 (parallel coordinates)
         # figure_72_boxplot=True, # Figure 7.2 (Step 2b sensitivity analysis) - Boxplot
         # figure_step2b_violin_plot=True, # Step 2b sensitivity analysis (JUST WEIGHTS) - Violin plot - # CRAMERY MYPALETTE
         # figure_72_violin=True, # Figure 7.2 (Step 2b sensitivity analysis: WEIGHTS/DEMAND/CONVERGENCE) - Violin
-        # figure_73_weights_scatter=True, # Figure 7.3 (Step 2b sensitivity analysis) - Scatter plot for SUPPLEMENTARY INFORMATION
+        figure_73_weights_scatter=True, # Figure 7.3 (Step 2b sensitivity analysis) - Scatter plot for SUPPLEMENTARY INFORMATION
         # figure_8=True, # Figure 8 (hindcasting)
         )
 
