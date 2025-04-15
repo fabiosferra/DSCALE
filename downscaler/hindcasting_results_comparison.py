@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import cmcrameri  # Import the cmcrameri package
 from pathlib import Path
 from typing import Optional
 from downscaler import CONSTANTS
@@ -60,7 +61,8 @@ def main(
     df_downs = fun_rename_index_name(df_downs, {"ISO": "REGION"})
     df_hist = fun_read_csv_or_excel("hist_country_level_data.csv", None, folder=p_dir)
     df_iam = fun_index_names(fun_read_df_iams(project, ), True, int) 
-    df_iea = pd.concat([fun_most_recent_iea_data(), fun_ghg_emi_from_primap(None).droplevel('FILE')])
+    primap="Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv"
+    df_iea = pd.concat([fun_most_recent_iea_data(), fun_ghg_emi_from_primap(None, file =primap ).droplevel('FILE')])
 
     # CHECK max error by MODEL/region and suggest
     # for var in var_list:
@@ -87,7 +89,7 @@ def main(
                 file_name=varn
 
             # Simple alternative (proportional) downscaling method
-            df_prop_method = fun_prop_method(project, models, df_iam, df_iea, var, c)
+            df_prop_method = fun_prop_method(project, models, df_iam, df_iea, var, c, file=primap)
             df_prop_method = df_prop_method.assign(REGION=c).assign(VARIABLE=var).assign(UNIT=np.nan).assign(SCENARIO='HISTCR')
             df_prop_method = df_prop_method.reset_index().set_index(df_downs.index.names)
             
@@ -101,9 +103,9 @@ def main(
             plt.close()
     print("done")
 
-def fun_prop_method(project, models, df_iam, df_iea, var, c):
+def fun_prop_method(project, models, df_iam, df_iea, var, c, file = "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"):
     # Reads either PRIMAP or IEA to get historical data
-    primap=fun_ghg_emi_from_primap([c]) if 'Emissi' in var else df_iea.xs(c, level='REGION', drop_level=False)
+    primap=fun_ghg_emi_from_primap([c], file=file) if 'Emissi' in var else df_iea.xs(c, level='REGION', drop_level=False)
 
     # Proportional dowsncaling
     res={}
@@ -195,7 +197,10 @@ def fun_hindcasting_performance_graph(df_graph: pd.DataFrame, df_prop_method: pd
     df_graph = df_graph[range(2005, 2021)].T
     df_graph = df_graph.replace(0, np.nan)
     
-    colorlist = ['blue', 'green', 'red']  # Color list for plotting
+    # Color list for plotting  # https://www.fabiocrameri.ch/batlow/
+    # colorlist = ['blue', 'green', 'red']  
+    # colorlist = [cmcrameri.cm.batlowS(i) for i in range(3)]  # Adjust the number of colors as needed
+    colorlist = [cmcrameri.cm.batlowS(i) for i in range(1,4)]  # Adjust the number of colors as needed
 
     # Prepare proportional method data for plotting
     df_prop_method = df_prop_method.xs(c, level="REGION").droplevel(["SCENARIO", "UNIT"])
