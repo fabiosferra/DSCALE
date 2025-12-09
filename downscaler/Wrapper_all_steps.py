@@ -21,6 +21,7 @@ from downscaler import (
     AFOLU_emissions,  # step 5c tris
     Step_5d_aggregated_regions_5d,
     Step_5e_historical_harmo,
+    visualization_6,
 )
 from downscaler.input_caching import get_selection_dict
 from downscaler.utils_dictionary import fun_append_list_of_dicts
@@ -678,7 +679,36 @@ def main(
         # file_visual = f"_NGFS_{file_suffix}_2019_harmo_step5e_None.csv"
     
     if step6:
-        print('We do not run step6 - just the core downscaling method')
+        # By default we try to run the visualizations using the results WITH POLICY
+        file_visual = f"_{project_folder}_{file_suffix}_{harmonize_eea_data_until}_harmo_step5e_WITH_POLICY_None.csv"
+        step5_files = [
+            x for x in os.listdir(CONSTANTS.CURR_RES_DIR("step5")) if file_visual in x
+        ]
+        # If results WITH POLICY are not found, we ask the user if wants to plot the data WITHOUT POLICY
+        if not len(step5_files):
+            txt = (
+                f"We cannot find results WITH_POLICY to be used in the step6 visualizations. \n"
+                "Would you like to use the results WITHOUT POLICY instead (y/n)? \n \n"
+            )
+            action = input(txt)
+            if action.lower() in ["yes", "y"]:
+                file_visual = f"_{project_folder}_{file_suffix}_{harmonize_eea_data_until}_harmo_step5e_None.csv"
+            else:
+                raise ValueError(f"Simulation aborted by the user: {action}")
+
+        print("Running step6...")
+        visualization_6.run_step6(
+            project_name=project_folder,
+            input_file_downsc_data=file_visual,
+            # input_file_downsc_data=f"_{file_suffix}_FINAL.csv",
+            # input_file_downsc_data=f"_{file_suffix}.csv",  ## temp fix (we don't have step 5b yet)
+            model_patterns=list_of_models,
+            scenario_patterns=list_of_targets,
+            region_patterns=list_of_regions,
+            country_patterns="*",  # "AUT",
+            hist_emi_src="PRIMAP",
+        )
+
 
 
 if __name__ == "__main__":
