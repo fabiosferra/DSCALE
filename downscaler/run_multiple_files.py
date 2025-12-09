@@ -99,9 +99,9 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
             txt = f"{txt} \n This means you are about to run: {unique(true_list)}. Do you wish to proceed y/n?"
             # action = input(txt)
             # if action.lower() not in ["yes", "y"]:
-            print(txt)
-            action = msvcrt.getch()
-            if action.lower().decode() not in ["yes", "y"]:
+            # print(txt)
+            action = input(txt)
+            if action.lower() not in ["yes", "y"]:
                 raise ValueError(f"Simulation aborted by the user (user input={action})")
         print("running...")
         for key, value in kwargs.items():
