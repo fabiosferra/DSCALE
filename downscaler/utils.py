@@ -5599,13 +5599,18 @@ def fun_reshape_gains_iamc(
             for x in scenario_dict
         }
     else:
+        # myidx=["AGGRsec3", "ISO", "year", "VARIABLE", "AGGRsec2"]
+        myidx=["ISO", "year", "VARIABLE"]
+        myidx= ["AGGRsec3"] + myidx if "AGGRsec3" in df_gains.columns else myidx
+        myidx= myidx + ["AGGRsec2"] if "AGGRsec2" in df_gains.columns else myidx
+
         res_dict = {
             x: df_gains.rename(
                 columns={
                     "pollutant": "VARIABLE",
                 }
             )
-            .set_index(["AGGRsec3", "ISO", "year", "VARIABLE", "AGGRsec2"])
+            .set_index(myidx)
             .groupby(["ISO", "year", "VARIABLE"])
             .sum()
             .unstack("year")[f"{x}_kt{CO2eq_str}"]
@@ -7165,20 +7170,22 @@ def fun_split_emissions_by_fuel_and_mode(
         ##############################
         ## Rename IEA ACTIVITY DATA ##
         ##############################
-    df_iea_act.loc[:, "UNIT"] = "Mt CO2/yr"
-    df_iea_act.loc[:, "MODEL"] = model
-    df_iea_act.loc[:, "SCENARIO"] = target
+    if len(df_iea_act) > 0:
+        df_iea_act.loc[:, "UNIT"] = "Mt CO2/yr"
+        df_iea_act.loc[:, "MODEL"] = model
+        df_iea_act.loc[:, "SCENARIO"] = target
 
     setindex(
         df_fuel_all,
         iamc_index,
     )
-    cols_iea=[x for x in df_iea_act.columns if x not in df_iea_act.index.names]
-    df_iea_act=df_iea_act[cols_iea]
-    setindex(
-        df_iea_act,
-        iamc_index,
-    )
+    if len(df_iea_act) > 0:
+        cols_iea=[x for x in df_iea_act.columns if x not in df_iea_act.index.names]
+        df_iea_act=df_iea_act[cols_iea]
+        setindex(
+            df_iea_act,
+            iamc_index,
+        )
 
     ######################################
     ## Emissions from transport by mode ##
@@ -7186,29 +7193,30 @@ def fun_split_emissions_by_fuel_and_mode(
     if (
         var[-1] == "Emissions|CO2|Energy|Demand|Transportation"
     ):  ## we downscale to sub-sectors:
-        df_append = (
-            df_fuel_all.groupby(["MODEL", "SCENARIO", "REGION", "UNIT"]).sum()
-            * df_iea_act
-        )
-        setindex(
-            df_append,
-            iamc_index,
-        )
-        # NOTE: list of variables in df_append = ['Air Travel', 'Buses/Trucks', 'Cars', 'Off-road', 'Ships', nan]. We want to exclude nan variable
-        mask = [
-            True if type(x) == str else False
-            for x in df_append.index.get_level_values("VARIABLE")
-        ]  ## NOTE Variables to be excluded (True/False list). We esclude variable name == nan. This means type is float instead of string
-        df_append = df_append[
-            mask
-        ]  # We esclude variable == nan. This means type is float instead of string
-        df_fuel_all= pd.concat([df_fuel_all, df_append.dropna(how="all")])
-        # df_fuel_all = df_fuel_all.append(df_append.dropna(how="all"))
-        rename_dict = {
-            x: "Emissions|CO2|Energy|Demand|Transportation|" + x
-            for x in df_append.index.get_level_values("VARIABLE").unique()
-        }
-        df_fuel_all.rename(index=rename_dict, level="VARIABLE", inplace=True)
+        if  len(df_iea_act) > 0:
+            df_append = (
+                df_fuel_all.groupby(["MODEL", "SCENARIO", "REGION", "UNIT"]).sum()
+                * df_iea_act
+            )
+            setindex(
+                df_append,
+                iamc_index,
+            )
+            # NOTE: list of variables in df_append = ['Air Travel', 'Buses/Trucks', 'Cars', 'Off-road', 'Ships', nan]. We want to exclude nan variable
+            mask = [
+                True if type(x) == str else False
+                for x in df_append.index.get_level_values("VARIABLE")
+            ]  ## NOTE Variables to be excluded (True/False list). We esclude variable name == nan. This means type is float instead of string
+            df_append = df_append[
+                mask
+            ]  # We esclude variable == nan. This means type is float instead of string
+            df_fuel_all= pd.concat([df_fuel_all, df_append.dropna(how="all")])
+            # df_fuel_all = df_fuel_all.append(df_append.dropna(how="all"))
+            rename_dict = {
+                x: "Emissions|CO2|Energy|Demand|Transportation|" + x
+                for x in df_append.index.get_level_values("VARIABLE").unique()
+            }
+            df_fuel_all.rename(index=rename_dict, level="VARIABLE", inplace=True)
 
     df_fuel_all.columns = [int(x) for x in df_fuel_all.columns]
     df_fuel_all=df_fuel_all[sorted(list(df_fuel_all.columns))]
@@ -8653,8 +8661,8 @@ def fun_emi_by_fuel(
         df_fuel_all = df_fuel_all.rename(index=myiso_dict)
         df_combi= pd.concat([df_combi, df_fuel_all])
         # df_combi = df_combi.append(df_fuel_all)
-
-        setindex(df_iea_act, False)
+        if len(df_iea_act)>0:
+            setindex(df_iea_act, False)
 
     return df_combi
 
@@ -9090,11 +9098,14 @@ def fun_get_df_iam_and_iea_activity_data(file):
 
     df_iam_all_models.loc[:, "REGION"] = df_iam_all_models.loc[:, "REGION"] + "r"
 
-    df_iea_act = fun_read_df_iea_act_and_reshape(
-        CONSTANTS.INPUT_DATA_DIR / "GAINS_ISO3.csv",  # gains path
-        CONSTANTS.INPUT_DATA_DIR  # iea activity path
-        / "Emission_Clock_transport_act_data_aggregation_WEO2021_STEPS_V2.csv",
-    )
+    if os.path.exists(CONSTANTS.INPUT_DATA_DIR/ "Emission_Clock_transport_act_data_aggregation_WEO2021_STEPS_V2.csv"):
+        df_iea_act = fun_read_df_iea_act_and_reshape(
+            CONSTANTS.INPUT_DATA_DIR / "GAINS_ISO3.csv",  # gains path
+            CONSTANTS.INPUT_DATA_DIR  # iea activity path
+            / "Emission_Clock_transport_act_data_aggregation_WEO2021_STEPS_V2.csv",
+        )
+    else:
+        df_iea_act=pd.DataFrame()
     return df_iam_all_models, df_iea_act
 
 
@@ -24828,21 +24839,39 @@ def fun_compare_NGFS_rounds(fname1: str, fname2: str, drop: dict = None, keep: d
     
     # Read fname1
     df1 = fun_read_csv({'aa': fname1}, True, int)['aa']
-    df1 = fun_rename_index_name(df1, {'ISO': 'REGION'}).droplevel('MODEL')  # This allows comparison across models
+    df1 = fun_rename_index_name(df1, {'ISO': 'REGION', 'TARGET':'SCENARIO'}).droplevel('MODEL')  # This allows comparison across models
 
     # Read fname2
     df2 = fun_read_csv({'aa': fname2}, True, int)['aa']
-    df2 = fun_rename_index_name(df2, {'ISO': 'REGION'}).droplevel('MODEL')  # This allows comparison across models
-
-    # Drop elements in the dataframe
+    df2 = fun_rename_index_name(df2, {'ISO': 'REGION', 'TARGET':'SCENARIO'}).droplevel('MODEL')  # This allows comparison across models
+    
+    # Block below allows for dropping variables using wildcard e.g. 'Statistical Difference*' will drop all variables starting with 'Statistical Difference'
     if drop is not None:
-        df1 = fun_xs(df1, drop, exclude_vars=True)
-        df2 = fun_xs(df2, drop, exclude_vars=True)
+        drop_all_df1= {k:  fun_wildcard(v, 
+            list(df1.index.get_level_values(k).unique()) 
+            ) for k,v in drop.items()}
+        
+        drop_all_df2= {k:  fun_wildcard(v, 
+            list(df2.index.get_level_values(k).unique()) 
+            ) for k,v in drop.items()}
+        
+        # Drop elements in the dataframe    
+        df1 = fun_xs(df1, drop_all_df1, exclude_vars=True)
+        df2 = fun_xs(df2, drop_all_df2, exclude_vars=True)
+
 
     # Keep specific elements in the dataframe
     if keep is not None:
-        df1 = fun_xs(df1, keep, exclude_vars=False)
-        df2 = fun_xs(df2, keep, exclude_vars=False)
+        keep_all_df1= {k:  fun_wildcard(v, 
+            list(df1.index.get_level_values(k).unique()) 
+            ) for k,v in keep.items()}
+        
+        keep_all_df2= {k:  fun_wildcard(v, 
+            list(df2.index.get_level_values(k).unique()) 
+            ) for k,v in keep.items()}
+        
+        df1 = fun_xs(df1, keep_all_df1, exclude_vars=False)
+        df2 = fun_xs(df2, keep_all_df2, exclude_vars=False)
 
     # Raise an error if no data is found after filtering
     if len(df1) == 0:
@@ -24851,10 +24880,13 @@ def fun_compare_NGFS_rounds(fname1: str, fname2: str, drop: dict = None, keep: d
         raise ValueError(f'No data found in {fname2} after applying the drop/keep filters')
         
     # Check major % differences across the two datasets (min and max percentage deviations)
-    check = (df1 / df2).dropna(how='all').replace({np.inf: np.nan, -np.inf: np.nan}).dropna()
+    check=(df1 / df2).dropna(how='all').replace({np.inf: np.nan, -np.inf: np.nan}).fillna(1)
     check = check.drop(list(range(2010, 2025, 5)), axis=1)  # Drop historical data to avoid multiple variables
-    myindex_max = fun_xs_fuzzy(check, [check.max().max()]).index
-    myindex_min = fun_xs_fuzzy(check, [check.min().min()]).index
+    # myindex_max = fun_xs_fuzzy(check, [check.max().max()]).index.unique()
+    # myindex_min = fun_xs_fuzzy(check, [check.min().min()]).index.unique()
+
+    myindex_max = check[check.eq(check.max().max()).any(axis=1)].index.unique()
+    myindex_min = check[check.eq(check.min().min()).any(axis=1)].index.unique()
 
     # Plot major differences found
     # Custom legend: find the common part of the file names and remove it for brevity in the legend
@@ -24863,10 +24895,19 @@ def fun_compare_NGFS_rounds(fname1: str, fname2: str, drop: dict = None, keep: d
         fname1 = str(fname1).replace(common, '')
         fname2 = str(fname2).replace(common, '')
     
+    characters=40
+    half_chars=characters//2
+    if len(fname1) > characters:
+        fname1 = fname1[:half_chars] + '...' + fname1[-half_chars:]
+    if len(fname2) > characters:
+        fname2 = fname2[:half_chars] + '...' + fname2[-half_chars:]
+    characters=characters+5
     mylegend = [fname1, fname2]
 
     # Plot maximum and minimum discrepancies
+    print('\n ### Maximum discrepancies: ###')	
     for x in [myindex_max, myindex_min]:
+        print(x[0])
         mydrop = ['VARIABLE', 'UNIT', 'SCENARIO']  # Drop these index levels for plotting
         
         ax = pd.concat([df1.loc[x].droplevel(mydrop), df2.loc[x].droplevel(mydrop)], axis=0).T.plot(label=mylegend, alpha=0.75)
