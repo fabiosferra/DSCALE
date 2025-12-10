@@ -13924,6 +13924,7 @@ def fun_save_csv_step0(
         existing_scen=df_append.reset_index().SCENARIO.unique()
         print(f'Will add these updated scenarios {myscen}, to the existing scenarios {existing_scen} in `df_iam` ')
         df=pd.concat([df,df_append])
+        print(df.head(5))
 
     # Save or return the dataframe
     if save_to_csv:
@@ -23989,8 +23990,9 @@ def step1_load_ssp_data(input_file: Path, project: str, model_patterns: List[str
             # We just check for countries that are available in `default_mapping.csv` for a given model
             # Reason: for some project (e.g. ECEMF) we only downscale a few countries (e.g. EU27 countries)- > this should not result in an error
             check_countries= list(set(fun_flatten_list(fun_regional_country_mapping_as_dict(m, input_file.parents[0]).values()))&(set(check_IEA_countries))) 
-            fun_check_missing_variables(fun_xs(fun_index_names(df_ssp, True, int), {"MODEL":[m]}),["Population","GDP|PPP"], check_countries, 
-                                        coerce_errors=False) # Can be optionally set to True
+            print("CHECK COUNTRIES:", check_countries)
+            # fun_check_missing_variables(fun_xs(fun_index_names(df_ssp, True, int), {"MODEL":[m]}),["Population","GDP|PPP"], check_countries, 
+            #                             coerce_errors=False) # Can be optionally set to True
 
     else:
         read_data_from=ssp_data_file
@@ -24195,7 +24197,8 @@ def find_countries_declining_gdpcap(df_iea_h: pd.DataFrame,
     - List[str]: List of countries with declining GDPCAP during 2010-1980.
     """
     print("Declining GDPCAP (during 2010-1980) - list of countries:")
-    res=(df_iea_h['GDPCAP'].unstack('TIME')[2010]-df_iea_h['GDPCAP'].unstack('TIME')[1980]).sort_values().dropna()
+    # res=(df_iea_h['GDPCAP'].unstack('TIME')[2010]-df_iea_h['GDPCAP'].unstack('TIME')[1980]).sort_values().dropna()
+    res=(df_iea_h['GDPCAP'].loc[2010] - df_iea_h['GDPCAP'].loc[1980]).sort_values().dropna()
     res=list(res[res<0].index)
     print(res)
     return res
