@@ -39,19 +39,24 @@ development.
 0. If you have already installed the downscaler please skip this, and go to (`1. get the data`). Otherwise, please setup/install downscaler code:
 	- a. clone DSCALE
 	- b. create virtual environment
-	- c. pip install -e .[dev,test] inside the cloned folder
+	- c. pip install -e .[dev,test] inside the cloned folder. Once installed, make sure you have the correct python and pandas versions. 
+    - If not, do step d. `conda create -n dscale_py37 python=3.7 pandas=1.2.5 numpy=1.17.0 scipy=1.6.2`
+    - If you did step d instead of step c, you might need to install a few more packages, but you can do it as you run through errors. 
+ 
 
 1. get the data
-    - a. download Regional IAMs data e.g. from https://data.ece.iiasa.ac.at/eu-climate-advisory-board/#/downloads; place in e.g. DSCALE\input_data\project_folder\snapshot_v1\...
-    - b. Make sure you have all input data (historical data etc.) required for the downscaling. Please note that some of the data are proprietary and cannot be made publicly available. If you have questions please contact sferra@iiasa.ac.at 
-    - c. get region mapping file(s) placed in same project folder, e.g. DSCALE\input_data\project_folder\snapshot_v1\...
+    - you should find all the static data on Box at this adress: https://climateanalytics.box.com/s/za2sfizodsbn1ulj8paxdbzd368ogo5g, some of them are created using step0, but you can just use the ones already produced here. Copy all the files from Box to the repository, in the folder called input_data
+    - then, in the repository folder input_data, add the project folder, named after your project (during the training we used `REMIND_2025_for_testing`). You should find all the data needed here: https://climateanalytics.box.com/s/za2sfizodsbn1ulj8paxdbzd368ogo5g
+
     
 
 2.  Run the downscaling for a given `project`.
-	- a. add a configuration (YAML) file, in your `project_folder`. This file specifies the list of models/regions/targats that you want to downscale and the downscaling steps that you want to run, like in the example below, e.g.:
+	- a. add a configuration (YAML) file, in your `project_folder` (`REMIND_2025_for_testing`). You can also use the one that was already available on Box! 
+    
+    This file specifies the list of models/regions/targats that you want to downscale and the downscaling steps that you want to run, like in the example below, e.g.:
        ```yaml
-            project_folder: "SIMPLE_hindcasting"
-            file_suffix: "2023_07_20"
+            project_folder: "REMIND_2025_for_testing"
+            file_suffix: "2025_12_12"
             n_jobs: 6
             step0: False
             model_folders: "snapshot_v1" # if a string, will split all dataframes contained in that folder by model
@@ -88,18 +93,26 @@ development.
             grassi_dynamic: True
             grassi_scen_mapping: { "SSP2 4.5": ["HISTCR"] }
         ```
-    - c. RUN `call.py` for your project for all steps by changing the initial bit of `call.py`, e.g.
+    
+    - b. RUN `call.py` for your project for all steps by changing the initial bit of `call.py`, e.g.
     ```python
         d= {
-        'config_file_name':"project_multiple_regions/config.yaml", # Add path to the `config.yaml` file 
-        'list_of_models': ['*MESSAGE*']	, # Run only the MESSAGE model
+        'config_file_name':"REMIND_2025_for_testing/config.yaml", # Add path to the `config.yaml` file 
+        'list_of_models': ['*']	, # Run only the MESSAGE model
         'list_of_regions': ['*'], # Run all regions
         'list_of_targets':["*"],# Run all scenarios 
         'file_suffix':'2025_01_30_test', # Suffix of your file name (should contain a date)
         'n_jobs':6, # Run of CPUs for job parallelization 
-        "coerce_errors":True # Runs
-        }
+        "coerce_errors":True} # Runs
     ```
+    -> You can probably just use the one directly pushed! But to test it, I recommand using it for just one country, so for example `list_of_regions=["AUS]`.
+
+    c. `call.py` will stop at some point. Once it stoped, check in the project folder input_data/REMIND_2025_for_testing if the SSP_projections file was created, and if there is the country you were looking to downscale (in addition to the other countries in the region).
+
+    d. Then, you can run run_multiple_files.py. If you uncomment all steps (except step0, which was run during the call.py), it will run them all! It will ask you by then end if it's ok to run WITHOUT policy, write `y`, it is ok. 
+    If it goes through it entirely, you will have results in the results folder, and you will be able to check at the visualisations! 
+
+
 3.  Results will be saved in the `results` folder. This folder is divided in different sub-folders reflecting the different downscaling steps. If you run all steps you will find the final data in the `5_Explorer_and_New_Variables` folder
     ```
     └── 📁results
