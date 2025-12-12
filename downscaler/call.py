@@ -7,12 +7,12 @@ from downscaler.fixtures import iea_countries, check_IEA_countries
 
 # NOTE: Change dictionary below as appropriate
 d= {
-    'config_file_name':"project_multiple_regions/config.yaml", # Add path to the `config.yaml` file 
-    'list_of_models': ['*MESSAGE*']	, # Run only the MESSAGE model
+    'config_file_name':'REMIND_2025_for_testing/config.yaml', # Add path to the `config.yaml` file
+    'list_of_models': ['*'], # Run only the MESSAGE model
     'list_of_regions': ['*'], # Run all regions
-    'list_of_targets':["*"],# Run all scenarios 
-    'file_suffix':'2025_01_30_test', # Suffix of your file name (should contain a date)
-    'n_jobs':6, # Run of CPUs for job parallelization 
+    'list_of_targets':["NPE-core", "NPE-demandStandard"],# Run all scenarios 
+    'file_suffix':'2025_12_12_test', # Suffix of your file name (should contain a date)
+    'n_jobs':3, # Run of CPUs for job parallelization - usually 6 is the max for Fabio
     "coerce_errors":True # Runs
 }
 
@@ -129,7 +129,7 @@ if os.path.exists(CONSTANTS.INPUT_DATA_DIR/project/"GDP_NGFS_merged.csv"):
 
 #C) Run all remaining steps
 res={}
-# steps={s:s!="step0" for s in steps}
+steps={s:s!="step0" for s in steps}
 main_with_yaml_config(**{**d,
                         #  **steps, # by commenting this out we run the steps found in config.yaml
                          **{'list_of_models':models}})

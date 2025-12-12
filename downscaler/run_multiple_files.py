@@ -1,3 +1,4 @@
+import os
 import logging
 import shutil
 from datetime import datetime
@@ -55,16 +56,16 @@ def main(
         #         finally:
         #             snapshot_all_regions.unlink()
         #             bar()
-        mydict={str(x).split('\\')[-1]:x for x in list(datadir.iterdir())}
-        mylist=[str(x).split('\\')[:-1] for x in  list(mydict.values())]
-        myfolder=list(set(['\\'.join(x) for x in mylist]))[0]
+        mydict={str(x).split('/')[-1]:x for x in list(datadir.iterdir())}
+        mylist=[str(x).split('/')[:-1] for x in  list(mydict.values())]
+        myfolder=list(set(['/'.join(x) for x in mylist]))[0]
         if models!=["*"]:
             # New code will copy-paste and run only seclected files, based on models selected in `input_parameters['list_of_models']`
             models=input_parameters['list_of_models']
             mylist=[x for x in list(datadir.iterdir())]
             mylist=[str(x) for x in mylist]
             # myfolder=list(set(['\\'.join(x.split('\\')[:-1]) for x in mylist]))[0]
-            mylist=[x.split('\\')[-1] for x in mylist]
+            mylist=[x.split('/')[-1] for x in mylist]
             mydict={m:fun_fuzzy_match(mylist,m, cutoff=0)[:1][0] for m in models}
         for m,file in mydict.items():
             try:
@@ -77,7 +78,7 @@ def main(
                 logging.exception(f"Error in model: {m}")
             finally:
                 snapshot_all_regions.unlink()
-                bar()
+                bar()            
         
 
 
@@ -116,21 +117,19 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 if __name__ == "__main__":
     main_with_yaml_config(
         # config_file_name="NGFS_2023_s_curve/config.yaml", # LOG-LOG/SCURVE Sensitivity analysis
-        config_file_name="myproject_2024_v2/config.yaml", # NGFS 2024 not working
+        config_file_name="REMIND_2025_for_testing/config.yaml", # NGFS 2024 not working
         # config_file_name="myproject_2024/config.yaml", # NGFS 2024
         # config_file_name="SIMPLE_hindcasting_enhanced_GDP/config.yaml", # HINDCASTING
-        list_of_models=["*MESSAGE*"],
-        # list_of_regions=['AUS', 'CAN', 'CHN', 'HKG', 'MAC', 'NZL', 'TWN'],
+        list_of_models=["*"],
+        #  list_of_regions=["*"],
+        list_of_regions=["AUS"], # tried with IDN, BRA and MAR (worked with MAR)
         # list_of_models=['*REMIND*'],
         # list_of_regions=['*Can*'],
         # list_of_models=['*'],
         # list_of_regions=['EU27'],
         # list_of_regions=['ALB', 'BIH', 'CHE', 'ISL', 'MKD', 'MNE', 'NOR', 'SRB', 'TUR'],
-        file_suffix='2024_11_15_TEST',
-        # list_of_targets=["h_cpol"],
-        # list_of_targets=["h_cpol",
-        #                  #'h_ndc', 'o_1p5c'
-        #                  ],
+        file_suffix='2025_12_12_test',
+        list_of_targets=["NPE-core", "NPE-demandStandard"],
         # list_of_models=["*"],
         # list_of_regions=['SYR'],
         # file_suffix='2024_04_12_ALL_countries',
@@ -151,22 +150,24 @@ if __name__ == "__main__":
         # n_sectors=1,#['Final Energy|Residential and Commercial|Gases', 'Final Energy|Transportation|Gases'], # Can be a number or a list of sectors
         run_sensitivity_from_step2_to_5=False,
         random_electricity_weights=False,
-        n_jobs=6,
-        step0=False,
-        step1=True,
-        step1b=False,
-        step2=False,
-        # # # # # # # # step2_pick_one_pathway=False,
-        # # # # # # # # # # fun_finalize_step2_all_targets=False,
-        step3=False,
-        step5=False,  # additional variables
-        step5b=False,  # sectorial emissions and revenues
-        step5c=False,  # non-co2
-        step5c_bis=False,  # hydrogen share aynd trade variables
-        step5c_tris=False,  # afolu
-        step5d=False,  # eu27 and aggregate results from multiple files
-        step5e=False,  # harmonize with historical data
-        step4=False,
-        step5e_after_policy=False,
-        step6=False,
+        n_jobs=8,
+        step0=False, # step0 finish by asking if you want to produce a subset SSP projections just for the regions/countries you want
+
+        # When steps are commented, it will do like in the config.yml file
+        # step1=False,
+        # step1b=False,
+        # step2=False,
+        # # # # # # # # # step2_pick_one_pathway=False,
+        # # # # # # # # # # # fun_finalize_step2_all_targets=False,
+        # step3=False,
+        # step5=False,  # additional variables
+        # step5b=False,  # sectorial emissions and revenues
+        # step5c=False,  # non-co2
+        # step5c_bis=False,  # hydrogen share aynd trade variables
+        # step5c_tris=False,  # afolu
+        # step5d=False,  # eu27 and aggregate results from multiple files
+        # step5e=False,  # harmonize with historical data
+        # step4=False,
+        # step5e_after_policy=False,
+        # step6=False,
     )
