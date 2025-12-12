@@ -312,6 +312,12 @@ def main(
         )
 
     if step1b:
+        print(
+            "================================================================",
+            "Step 1 Done!",
+            "We are now running step1b",
+            "================================================================"
+        )
         Energy_demand_sectors_harmonization_1b.main(
             project_folder,
             file_suffix,
