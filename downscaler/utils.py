@@ -23182,7 +23182,7 @@ def step1_enshort_calc_summer(
         try:
             for i in [2010,2100]:
                 if i in _y:
-                    print(f"this is _y in {i}: ", _y.loc[i])
+                    print(f"for country {_c}, this is _y in {i}: ", _y.loc[i])
         except Exception as e:
             print("Error printing _y values: ", str(e))
 
@@ -23222,7 +23222,35 @@ def step1_enshort_calc_summer(
         raise ValueError(f'{_c}, sector {sectors[_s]} not working for regression, {txt2}')
     # Validate projections
     # pd.concat([pd.Series(fun_regression(_func, _x, _y, True), index=_y.index), pd.Series(_y)], axis=1)
-    info_dict=fun_harmonize_alpha(None, _func, _x, _y, info_dict, func_dict)
+    print(f"This is step1_enshort_calc_summer: {_c} and sector {_s}")
+    
+    def load_json_data(file_path):
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r') as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                # file is empty or invalid JSON -> start fresh
+                return {}
+        return {}
+    # #  Load existing JSON or start fresh
+    try: 
+        info_dict=fun_harmonize_alpha(None, _func, _x, _y, info_dict, func_dict)
+    
+    except: #Exception as e:
+        # print("Error:", e)
+        json_path = f"{CONSTANTS.INPUT_DATA_DIR}/info.json"
+        data_json = load_json_data(json_path)
+        key = f"{_c}_{_s}"
+        # if key not in data:
+        data_json[key] = {'value': f"Country not being harmonised: {_c} for sector {_s}."}
+        # else:
+            # print(f"Combination {_c} and {_s} already in json file.")
+        # Save updated data back to the JSON file
+        with open(json_path, 'w') as f:
+            json.dump(data_json, f)#, indent=4)
+
+
     beta=info_dict['beta']
     alpha=info_dict['alpha'] if _func in ['linear','lin','log-log'] else np.nan
     r_squared=info_dict['r_squared']
