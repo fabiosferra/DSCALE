@@ -416,14 +416,14 @@ def fun_primary_secondary_energy_graphs_hist_dev(
         conversion = 0.085984523
         # conversion from GWh to ktoe (then automatically converted to EJ from fun_historic_data)
     else:
-        conversion = 1
+        conversion = 1/41.868 # this is the conversion from GJ to KTOE (originally this was 1)
 
     if level == "Secondary":
         _sector_main = level + " Energy|" + ec + "|"
         direct_equivalent = 1
     else:
         _sector_main = level + " Energy|"
-        direct_equivalent = 3  # will be used for nuclear conversion
+        direct_equivalent = 1 #3  # will be used for nuclear conversion
 
     if flag_region:
         c = countrylist  # List of country if this is a region
