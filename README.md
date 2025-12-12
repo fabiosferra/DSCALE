@@ -92,7 +92,7 @@ development.
             co2_energy_only: False
             grassi_dynamic: True
             grassi_scen_mapping: { "SSP2 4.5": ["HISTCR"] }
-        ```
+    ```
     
     - b. RUN `call.py` for your project for all steps by changing the initial bit of `call.py`, e.g.
     ```python
