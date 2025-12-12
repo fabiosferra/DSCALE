@@ -19305,100 +19305,96 @@ def fun_smooth_enlong_single_tc(
         # npcols = [x for x in npcols if "TIME" not in x]
         dfin.loc[:, npcols] = np.log(dfin.loc[:, npcols])
 
-    try:
-        # coeff_ang = (
-        #     dfin.loc[_to["t"], f"EI_{_to['col']}"]
-        #     - dfin.loc[_from["t"], f"EI_{_from['col']}"]
-        # ) / (_to["t"] - _from["t"])
+    # coeff_ang = (
+    #     dfin.loc[_to["t"], f"EI_{_to['col']}"]
+    #     - dfin.loc[_from["t"], f"EI_{_from['col']}"]
+    # ) / (_to["t"] - _from["t"])
 
-        # Until when we interpolate. Normally is `_to['t']`, unless maxiumum GDPCAP happens earlier.
-        if over == "GDPCAP":
-            to_dict = {
-                c: dfin.xs((c, "Final Energy"), level=("ISO", "SECTOR"))["GDPCAP"]
-                .loc[range(2010, _to["t"] + 5,5)]
-                .idxmax()[0]
-                for c in dfin.reset_index().ISO.unique()
-            }
-        else:
-            to_dict = {c: _to["t"] for c in dfin.reset_index().ISO.unique()}
+    # Until when we interpolate. Normally is `_to['t']`, unless maxiumum GDPCAP happens earlier.
+    if over == "GDPCAP":
+        to_dict = {
+            c: dfin.xs((c, "Final Energy"), level=("ISO", "SECTOR"))["GDPCAP"]
+            .loc[range(2010, _to["t"] + 5,5)]
+            .idxmax()[0]
+            for c in dfin.reset_index().ISO.unique()
+        }
+    else:
+        to_dict = {c: _to["t"] for c in dfin.reset_index().ISO.unique()}
 
-        # if over=='TIME2' and use_linear_method:
-        #     a='checkthis'
+    # if over=='TIME2' and use_linear_method:
+    #     a='checkthis'
 
-        # if "TIME" in over: # THIS ONE NEVER HAPPENS AS WE CALL IT TIME2
-        #     den = _to["t"] - _from["t"]
-        #     if not use_linear_method:
-        #         check_this_one='here'
-        # else:
-        # den = dfin.loc[_to["t"], over] - dfin.loc[_from["t"], over]
-        den = pd.concat(
-            [
-                (dfin.loc[to_dict[c], over] - dfin.loc[_from["t"], over]).xs(
-                    c, drop_level=False
-                )
-                for c in dfin.index.get_level_values("ISO").unique()
-            ]
-        )
-
-        # to_s = dfin.loc[_to["t"], f"EI_{_to['col']}"]
-        # `to_s` = EI_ENLONG_RATIO in 2050 (or where max gdp occurs)
-        to_s = pd.concat(
-            [
-                dfin.loc[to_dict[c], f"EI_{_to['col']}"].xs(c, drop_level=False)
-                for c in dfin.index.get_level_values("ISO").unique()
-            ]
-        )
-        # `from_s` = EI_ENSHORT_REF in 2010
-        from_s = dfin.loc[_from["t"], f"EI_{_from['col']}"].copy(deep=True)
-        # from_s = pd.concat(
-        #     [
-        #         dfin.loc[to_dict[c], f"EI_{_from['col']}"].xs(c, drop_level=False)
-        #         for c in dfin.index.get_level_values("ISO").unique()
-        #     ]
-        # )
-        coeff_ang = (to_s - from_s) / den
-        d = coeff_ang.to_dict()
-        dfin = dfin.reset_index("TIME")  # TRY TO MOVE IT HERE
-        # dfin=dfin.set_index('SECTOR', append=True).reset_index('TIME')
-        dfin["coeff_ang"] = [d[x] for x in dfin.index]
-        col_name = f"EI_{_from['col']}_to_{_to['col']}_{_to['t']}_then{_continue}"
-        temp_diff = dfin.loc[:, over] - dfin.loc[dfin["TIME"] == _from["t"], over]
-        dfin[f"{over}_DIFF"] = "to be filled"
-        dfin.loc[dfin.index, f"{over}_DIFF"] = temp_diff.loc[dfin.index]
-        # dfin[f"{over}_DIFF"] = dfin[over] - dfin.loc[dfin[over]==_from['t'], over]
-        dfin[col_name] = dfin["coeff_ang"] * dfin[f"{over}_DIFF"]
-        # dfin=dfin.reset_index().set_index(['TIME','ISO'])
-        d1 = dfin[dfin["TIME"] == _from["t"]][f"EI_{_from['col']}"]
-        dfin = dfin.reset_index().set_index(["ISO", "TARGET", "SECTOR"])
-        dfin["add"] = [d1[x] for x in dfin.index]
-        dfin[col_name] = dfin[col_name] + dfin["add"]
-        drop_cols = ["coeff_ang", f"{over}_DIFF", "add"]
-        if "TIME2" in dfin.columns:
-            drop_cols = drop_cols + ["TIME2"]
-            npcols = [x for x in npcols if x not in drop_cols]
-        for col in drop_cols:
-            dfin = dfin.drop(col, axis=1)
-        dfin = dfin.reset_index().set_index(["TIME", "ISO", "TARGET", "SECTOR"])
-
-        # Replace with ENLONG values if t>tc and MAX GDPCAP is in tc
-        # CAREFUL, WITHOUT THE BELOW WE CAN HAVE ZERO ENERGY CONSUMPTION (if tc<2100)
-        # if over=="GDPCAP":
-        d1 = dfin[col_name].to_dict()
-        d2 = dfin[f"EI_{_continue}"].to_dict()
-        dfin.loc[:, col_name] = [
-            # d1[x] if x[0] <= _to["t"] or to_dict[x[1]]!=_to["t"] else d2[x] for x in dfin.index
-            d1[x] if x[0] <= to_dict[x[1]] else d2[x]
-            for x in dfin.index
+    # if "TIME" in over: # THIS ONE NEVER HAPPENS AS WE CALL IT TIME2
+    #     den = _to["t"] - _from["t"]
+    #     if not use_linear_method:
+    #         check_this_one='here'
+    # else:
+    # den = dfin.loc[_to["t"], over] - dfin.loc[_from["t"], over]
+    den = pd.concat(
+        [
+            (dfin.loc[to_dict[c], over] - dfin.loc[_from["t"], over]).xs(
+                c, drop_level=False
+            )
+            for c in dfin.index.get_level_values("ISO").unique()
         ]
-        if list(func)[0] == "log-log" and not use_linear_method:
-            npcols = npcols + [col_name]
-            dfin.loc[:, npcols] = np.exp(dfin.loc[:, npcols].astype(float))
-        # Go back to real GDPCAP data (not clipped)
-        dfin["GDPCAP"]=dfin['GDPCAP_original'].copy(deep=True)
-        return dfin.drop('GDPCAP_original', axis=1)
-    except:
-        a = 1
-        return
+    )
+
+    # to_s = dfin.loc[_to["t"], f"EI_{_to['col']}"]
+    # `to_s` = EI_ENLONG_RATIO in 2050 (or where max gdp occurs)
+    to_s = pd.concat(
+        [
+            dfin.loc[to_dict[c], f"EI_{_to['col']}"].xs(c, drop_level=False)
+            for c in dfin.index.get_level_values("ISO").unique()
+        ]
+    )
+    # `from_s` = EI_ENSHORT_REF in 2010
+    from_s = dfin.loc[_from["t"], f"EI_{_from['col']}"].copy(deep=True)
+    # from_s = pd.concat(
+    #     [
+    #         dfin.loc[to_dict[c], f"EI_{_from['col']}"].xs(c, drop_level=False)
+    #         for c in dfin.index.get_level_values("ISO").unique()
+    #     ]
+    # )
+    coeff_ang = (to_s - from_s) / den
+    d = coeff_ang.to_dict()
+    dfin = dfin.reset_index("TIME")  # TRY TO MOVE IT HERE
+    # dfin=dfin.set_index('SECTOR', append=True).reset_index('TIME')
+    dfin["coeff_ang"] = [d[x] for x in dfin.index]
+    col_name = f"EI_{_from['col']}_to_{_to['col']}_{_to['t']}_then{_continue}"
+    temp_diff = dfin.loc[:, over] - dfin.loc[dfin["TIME"] == _from["t"], over]
+    dfin[f"{over}_DIFF"] = "to be filled"
+    dfin.loc[dfin.index, f"{over}_DIFF"] = temp_diff.loc[dfin.index]
+    # dfin[f"{over}_DIFF"] = dfin[over] - dfin.loc[dfin[over]==_from['t'], over]
+    dfin[col_name] = dfin["coeff_ang"] * dfin[f"{over}_DIFF"]
+    # dfin=dfin.reset_index().set_index(['TIME','ISO'])
+    d1 = dfin[dfin["TIME"] == _from["t"]][f"EI_{_from['col']}"]
+    dfin = dfin.reset_index().set_index(["ISO", "TARGET", "SECTOR"])
+    dfin["add"] = [d1[x] for x in dfin.index]
+    dfin[col_name] = dfin[col_name] + dfin["add"]
+    drop_cols = ["coeff_ang", f"{over}_DIFF", "add"]
+    if "TIME2" in dfin.columns:
+        drop_cols = drop_cols + ["TIME2"]
+        npcols = [x for x in npcols if x not in drop_cols]
+    for col in drop_cols:
+        dfin = dfin.drop(col, axis=1)
+    dfin = dfin.reset_index().set_index(["TIME", "ISO", "TARGET", "SECTOR"])
+
+    # Replace with ENLONG values if t>tc and MAX GDPCAP is in tc
+    # CAREFUL, WITHOUT THE BELOW WE CAN HAVE ZERO ENERGY CONSUMPTION (if tc<2100)
+    # if over=="GDPCAP":
+    d1 = dfin[col_name].to_dict()
+    d2 = dfin[f"EI_{_continue}"].to_dict()
+    dfin.loc[:, col_name] = [
+        # d1[x] if x[0] <= _to["t"] or to_dict[x[1]]!=_to["t"] else d2[x] for x in dfin.index
+        d1[x] if x[0] <= to_dict[x[1]] else d2[x]
+        for x in dfin.index
+    ]
+    if list(func)[0] == "log-log" and not use_linear_method:
+        npcols = npcols + [col_name]
+        dfin.loc[:, npcols] = np.exp(dfin.loc[:, npcols].astype(float))
+    # Go back to real GDPCAP data (not clipped)
+    dfin["GDPCAP"]=dfin['GDPCAP_original'].copy(deep=True)
+    return dfin.drop('GDPCAP_original', axis=1)
 
 
 def get_git_revision_hash() -> str:
