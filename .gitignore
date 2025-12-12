@@ -10,6 +10,7 @@ results/*
 # Folders needed to run the downscaling but containing files that are too large
 input_data/*
 .DS_Store
+.venv
 !README.md
 # Leftover from refactoring
 archive/
