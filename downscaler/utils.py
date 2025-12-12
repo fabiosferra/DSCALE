@@ -16915,7 +16915,10 @@ def fun_read_iea_data_from_iamc_format(
     }
 
     for k, v in rename_dict.items():
-        result = fun_create_var_as_sum(result, k, [v], unit="EJ/yr")
+        try:
+            result = fun_create_var_as_sum(result, k, [v], unit="EJ/yr")
+        except:
+            print(f"Variable {k} was not created")
 
     return result
 
