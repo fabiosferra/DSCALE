@@ -742,7 +742,7 @@ def make_optimal_list(_df_main, _left_list, _right_list, _r, region, _threshold=
     threshold = _threshold  # 0.95
 
     # print('ORIGINAL LIST', right_final)
-    if all_permutations:
+    if all_permutations and len(_right_list)<=4:
         minval,  right_final, mylist_pos = learning_all_permutations(
                 left_list,
                 right_final,
