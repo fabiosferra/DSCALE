@@ -16352,39 +16352,40 @@ def fun_add_variables_and_harmonize(
     else:
         CURR_RES_DIR = CONSTANTS.CURR_RES_DIR
 
-    bunkers = pd.read_csv(
-        CURR_RES_DIR
-        / "International_transport_from_Miles_2023_04_06.csv"
-        # / "International_transport_from_Miles_2023_04_03.csv"
-    )
-    bunkers = fun_index_names(bunkers, True, int)
+    # NOT NEEDED ANYMORE
+    # bunkers = pd.read_csv(
+    #     CURR_RES_DIR
+    #     / "International_transport_from_Miles_2023_04_06.csv"
+    #     # / "International_transport_from_Miles_2023_04_03.csv"
+    # )
+    # bunkers = fun_index_names(bunkers, True, int)
 
-    # 1) if "Emissions|CO2|Energy|Demand|Bunkers|Intra-EU" is available harmonized base year to match data from Miles
-    df_merged = fun_harmonize_existing_bunkers_using_external_dataset(
-        harmonize_eea_data_until, df_merged, bunkers
-    )
+    # # 1) if "Emissions|CO2|Energy|Demand|Bunkers|Intra-EU" is available harmonized base year to match data from Miles
+    # df_merged = fun_harmonize_existing_bunkers_using_external_dataset(
+    #     harmonize_eea_data_until, df_merged, bunkers
+    # )
 
-    models_with_native_bunkers = []
-    if (
-        "Emissions|CO2|Energy|Demand|Bunkers|Intra-EU"
-        in df_merged.reset_index().VARIABLE.unique()
-    ):
-        models_with_native_bunkers = list(
-            df_merged.xs(
-                "Emissions|CO2|Energy|Demand|Bunkers|Intra-EU", level="VARIABLE"
-            )
-            .reset_index()
-            .MODEL.unique()
-        )
+    # models_with_native_bunkers = []
+    # if (
+    #     "Emissions|CO2|Energy|Demand|Bunkers|Intra-EU"
+    #     in df_merged.reset_index().VARIABLE.unique()
+    # ):
+    #     models_with_native_bunkers = list(
+    #         df_merged.xs(
+    #             "Emissions|CO2|Energy|Demand|Bunkers|Intra-EU", level="VARIABLE"
+    #         )
+    #         .reset_index()
+    #         .MODEL.unique()
+    #     )
 
-    # 2) if missing, use data from Miles
+    # # 2) if missing, use data from Miles
 
-    df_missing_models = fun_add_bunkers_from_miles_to_ghg(
-        fun_xs(df_merged, {"MODEL": models_with_native_bunkers}, exclude_vars=True),
-        bunkers,
-    ).dropna(how='all')
+    # df_missing_models = fun_add_bunkers_from_miles_to_ghg(
+    #     fun_xs(df_merged, {"MODEL": models_with_native_bunkers}, exclude_vars=True),
+    #     bunkers,
+    # ).dropna(how='all')
 
-    df_merged = pd.concat([df_merged, df_missing_models], axis=0, sort=True)
+    # df_merged = pd.concat([df_merged, df_missing_models], axis=0, sort=True)
 
     # We drop variables no longer used
     blackl = fun_xs(
