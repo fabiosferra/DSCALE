@@ -15019,7 +15019,8 @@ def fun_calculate_kyoto_gases(df_all, idxname):
 def fun_read_primap(
     folder: Path,
     # file: str = "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv",
-    file:str='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
+    # file:str='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
+    file:str='Guetschow_et_al_2025a-PRIMAP-hist_v2.7_final_no_extrap_no_rounding_22-Aug-2025.csv'
 ) -> pd.DataFrame:
     """Reads PRIMAP dataset
 
@@ -15150,7 +15151,8 @@ def fun_ghg_emi_from_primap(
     # file = (
     #     "Guetschow-et-al-2021-PRIMAP-hist_v2.3.1_no_extrap_no_rounding_20-Sep_2021.csv"
     # )
-    file='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
+    # file='Guetschow_et_al_2024-PRIMAP-hist_v2.5.1_final_no_extrap_no_rounding_27-Feb-2024.csv'
+    file:str='Guetschow_et_al_2025a-PRIMAP-hist_v2.7_final_no_extrap_no_rounding_22-Aug-2025.csv'
     primap = fun_index_names(fun_read_primap(CONSTANTS.INPUT_DATA_DIR, file), True, int)
     selcols = [int(x) for x in myrange]
     primap = primap.iloc[:, primap.columns.isin(selcols)]
