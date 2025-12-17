@@ -93,7 +93,7 @@ def main(
     eu_2050_kyoto: float = 300,
     use_eea_data: bool = True,
     use_iea_data_from_ed: bool = True,
-    harmonize_eea_data_until: int = 2019,
+    harmonize_eea_data_until: int = 2023,
     harmo_vars: list = ["Emissions|CO2"],
     csv_file_name: Union[None, str] = None,
     interpolate: bool = True,
@@ -468,6 +468,9 @@ def main(
 
             # Just for ENGAGE below:
             if project == "ENGAGE_2023":
+                selcols = selcols + [harmonize_eea_data_until]
+                selcols.sort()
+            elif project == "REMIND_2025_for_testing":
                 selcols = selcols + [harmonize_eea_data_until]
                 selcols.sort()
             if "FILE" in df_merged.index.names:
@@ -1230,7 +1233,7 @@ if __name__ == "__main__":
         eu_2030_kyoto=2085,  # 2100,  #  # 4633.482972 * 0.45 = 2085.067337 which is the EU 2030 target, based on EEA data (UNFCCC)
         eu_2050_kyoto=300,
         csv_file_name=None,  # "EUab_2023_06_08_v8",
-        harmonize_eea_data_until=2019,
+        harmonize_eea_data_until=2023,
         interpolate=True,
         use_iea_data_from_ed=True,  # IEA energy data
         use_eea_data=True,  # EMISSIONS DATA
