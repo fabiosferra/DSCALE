@@ -41,7 +41,11 @@ development.
 	- b. create virtual environment
 	- c. pip install -e .[dev,test] inside the cloned folder. Once installed, make sure you have the correct python and pandas versions. 
     - If not, do step d. `conda create -n dscale_py37 python=3.7 pandas=0.25.1 numpy=1.17.0 scipy=1.6.2`
-    - If you did step d instead of step c, you might need to install a few more packages, but you can do it as you run through errors. 
+    - If you are using an ARM64 Apple Silicon, you will not be able to install these packages. Instead you will need to do step e
+        - a) Install Rosetta via `softwareupdate --install-rosetta`
+        - b) Install a python=3.7 env via `CONDA_SUBDIR=osx-64 conda create -n myenv_x86 python=3.7`
+        - c) Install the specific pandas/numpy/scipy dependencies via pip
+    - If you did step e/d instead of step c, you might need to install a few more packages, but you can do it as you run through errors. 
  
 
 1. get the data
