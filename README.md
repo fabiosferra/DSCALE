@@ -40,18 +40,18 @@ development.
 	- a. clone DSCALE
 	- b. create virtual environment
 	- c. pip install -e .[dev,test] inside the cloned folder. Once installed, make sure you have the correct python and pandas versions. 
-    - If not, do step d. `conda create -n dscale_py37 python=3.7 pandas=1.2.5 numpy=1.17.0 scipy=1.6.2`
+    - If not, do step d. `conda create -n dscale_py37 python=3.7 pandas=0.25.1 numpy=1.17.0 scipy=1.6.2`
     - If you did step d instead of step c, you might need to install a few more packages, but you can do it as you run through errors. 
  
 
 1. get the data
-    - you should find all the static data on Box at this adress: https://climateanalytics.box.com/s/za2sfizodsbn1ulj8paxdbzd368ogo5g, some of them are created using step0, but you can just use the ones already produced here. Copy all the files from Box to the repository, in the folder called input_data
-    - then, in the repository folder input_data, add the project folder, named after your project (during the training we used `REMIND_2025_for_testing`). You should find all the data needed here: https://climateanalytics.box.com/s/za2sfizodsbn1ulj8paxdbzd368ogo5g
+    - a. you should find all the static data on Box at this adress: https://climateanalytics.box.com/s/za2sfizodsbn1ulj8paxdbzd368ogo5g, some of them are created using step0, but you can just use the ones already produced here. Copy all the files from Box to the repository, in the folder called input_data
+    - b. then, in the repository folder input_data, add the project folder, named after your project (during the training we used `REMIND_2025_for_testing`). You should find all the data needed here: https://climateanalytics.app.box.com/folder/355631529487?s=xwtu8jvmxnxjid8yva0oqhj72i7iyba9. Ensure that you have the regional data you want to downscale in `snapshot_v1` within this project folder also.
 
     
 
 2.  Run the downscaling for a given `project`.
-	- a. add a configuration (YAML) file, in your `project_folder` (`REMIND_2025_for_testing`). You can also use the one that was already available on Box! 
+	- a. add a configuration (YAML) file, in your `project_folder` (`REMIND_2025_for_testing`). You can also use the one that was already available on Box that you downloaded in Step 1b.
     
     This file specifies the list of models/regions/targats that you want to downscale and the downscaling steps that you want to run, like in the example below, e.g.:
        ```yaml
