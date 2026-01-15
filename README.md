@@ -165,6 +165,18 @@ def myfunc():
     ...
     return
 
+
+## Data file used when 
+Historical_data.csv ✅ (Step1)
+Extended_IEA_en_bal_2019_ISO.csv ✅ (step1)
+input_reference_iea_2022.csv ✅ (Step1b, Step5). This was created from IEA_Balances_Rev2022.csv
+ALLUNITS_PLATTS_ISO.csv ✅ (Step2)
+IEA_hist_trade_variables_v2022 ✅ (Step 5c_bis)
+IEA 2019 CO2 emissions from fuels_ISO.csv ✅ (used in step5b, Step5e_harmo, step6)
+input_reference_iea.csv ❌ (Not used)
+IEA_Balances_Rev2022.csv ❌ (Step5e_harmo)
+
+
 # setting caching to False
 downscaler.USE_CACHING = False
 myfunc()

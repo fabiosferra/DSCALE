@@ -9,6 +9,7 @@ results/*
 
 # Folders needed to run the downscaling but containing files that are too large
 input_data/*
+notebook/data_checks/
 .DS_Store
 .venv
 !README.md
