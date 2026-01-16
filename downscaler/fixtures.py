@@ -228,6 +228,7 @@ iea_biomass = [
 iea_flow_dict = {
     ## Data stucture  {sectors:['IEA FLOW', 'IEA PRODUCT','UNIT', scale (graph purposes)]}
     gdp: ["", "", "Billion USD PPP"],  ## We just need this for the UNIT value
+    
     ## PLEASE DO NOT CHANGE THE 'Final Energy' LINE (BELOW). It should not be rewritten as 'list of list
     "Final Energy": [
         "Total final consumption",
@@ -360,7 +361,9 @@ iea_flow_dict = {
         1e2,
     ],
     "Final Energy|Industry|Gases": [["Industry"], iea_gases, ["ktoe"], 1e2],
-    ## we need the below later on for downscaling final energy solids by sectors and fuels 2020_11_18
+
+
+    ## FUEL MAPPING
     "Final Energy|Industry|Solids|Biomass": [
         ["Industry"],
         (list(set(iea_biomass).intersection(iea_solids))),
@@ -385,6 +388,86 @@ iea_flow_dict = {
         ["ktoe"],
         1e2,
     ],  ## intersection of two lists
+
+    "Final Energy|Industry|Liquids|Biomass": [
+        ["Industry"],
+        (list(set(iea_biomass).intersection(iea_liquids))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Industry|Liquids|Oil": [
+        ["Industry"],
+        (list(set(iea_oil).intersection(iea_liquids))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Residential and Commercial|Liquids|Oil": [
+        ["Residential", "Commercial and public services"],
+        (list(set(iea_oil).intersection(iea_liquids))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Residential and Commercial|Liquids|Biomass": [
+        ["Residential", "Commercial and public services"],
+        (list(set(iea_biomass).intersection(iea_liquids))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Transportation|Liquids|Oil": [
+        ["Transportation"],
+        (list(set(iea_oil).intersection(iea_liquids))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Transportation|Liquids|Biomass": [
+        ["Transportation"],
+        (list(set(iea_biomass).intersection(iea_liquids))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+
+
+    "Final Energy|Industry|Gases|Biomass": [
+        ["Industry"],
+        (list(set(iea_biomass).intersection(iea_gases))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Industry|Gases|Natural Gas": [
+        ["Industry"],
+        (list(set(iea_gas).intersection(iea_gases))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Residential and Commercial|Gases|Natural Gas": [
+        ["Residential", "Commercial and public services"],
+        (list(set(iea_gas).intersection(iea_gases))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Residential and Commercial|Gases|Biomass": [
+        ["Residential", "Commercial and public services"],
+        (list(set(iea_biomass).intersection(iea_gases))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Transportation|Gases|Natural Gas": [
+        ["Transportation"],
+        (list(set(iea_gas).intersection(iea_gases))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+    "Final Energy|Transportation|Gases|Biomass": [
+        ["Transportation"],
+        (list(set(iea_biomass).intersection(iea_gases))),
+        ["ktoe"],
+        1e2,
+    ],  ## intersection of two lists
+
+
+
+
+
     "Final Energy|Heat": [
         ["Heat output"],
         list(set(iea_gases + iea_liquids + iea_solids))
@@ -392,13 +475,6 @@ iea_flow_dict = {
         ["ktoe"],
         1e2,
     ],
-    "Final Energy|Residential and Commercial|Heat": [
-        ["Residential", "Commercial and public services"],
-        ["Heat"],
-        ["ktoe"],
-        1e2,
-    ],
-    "Final Energy|Industry|Heat": [["Industry"], ["Heat"], ["ktoe"], 1e2],
     "Final Energy|Hydrogen": [
         ["Hydrogen"],
         list(set(iea_gases + iea_liquids + iea_solids))
@@ -808,49 +884,116 @@ iea_flow_dict = {
 
 ## dict_y_den detetrmines the denominator of Y=NUM/DEN. This is the denominator of Y (of the log-log graph)
 dict_y_den = {
+    # Total and sectors
     "Final Energy": gdp,
     "Final Energy|Industry": "Final Energy",
     "Final Energy|Residential and Commercial": "Final Energy",
     "Final Energy|Transportation": "Final Energy",
+
+    # Energy carriers
     "Final Energy|Liquids&Gases": "Final Energy",
     "Final Energy|Transportation|Liquids&Gases": "Final Energy|Liquids&Gases",
     "Final Energy|Residential and Commercial|Liquids&Gases": "Final Energy|Liquids&Gases",
     "Final Energy|Industry|Liquids&Gases": "Final Energy|Liquids&Gases",
+
     "Final Energy|Liquids": "Final Energy",
     "Final Energy|Transportation|Liquids": "Final Energy|Liquids",
     "Final Energy|Residential and Commercial|Liquids": "Final Energy|Liquids",
     "Final Energy|Industry|Liquids": "Final Energy|Liquids",
+
     "Final Energy|Gases": "Final Energy",
     "Final Energy|Transportation|Gases": "Final Energy|Gases",
     "Final Energy|Residential and Commercial|Gases": "Final Energy|Gases",
     "Final Energy|Industry|Gases": "Final Energy|Gases",
+
     "Final Energy|Solids": "Final Energy",
     "Final Energy|Transportation|Solids": "Final Energy|Solids",
     "Final Energy|Residential and Commercial|Solids": "Final Energy|Solids",
     "Final Energy|Industry|Solids": "Final Energy|Solids",
+
     "Final Energy|Electricity": "Final Energy",
     "Final Energy|Industry|Electricity": "Final Energy|Electricity",
     "Final Energy|Residential and Commercial|Electricity": "Final Energy|Electricity",
     "Final Energy|Transportation|Electricity": "Final Energy|Electricity",
+    "Final Energy|Hydrogen": "Final Energy",
+    "Final Energy|Heat": "Final Energy",
+    "Final Energy|Residential and Commercial|Heat": "Final Energy|Heat",
+    "Final Energy|Industry|Heat": "Final Energy|Heat",
+
+    # Fuels
+
+    # Solids
     "Final Energy|Industry|Solids|Biomass": "Final Energy|Industry|Solids",
     "Final Energy|Industry|Solids|Coal": "Final Energy|Industry|Solids",
     "Final Energy|Residential and Commercial|Solids|Coal": "Final Energy|Residential and Commercial|Solids",
     "Final Energy|Residential and Commercial|Solids|Biomass": "Final Energy|Residential and Commercial|Solids",
-    "Final Energy|Hydrogen": "Final Energy",
-    "Final Energy|Heat": "Final Energy",
-    "Final Energy|Residential and Commercial|Heat": "Final Energy|Heat",
+
+    # Liquids
+    "Final Energy|Industry|Liquids|Biomass": "Final Energy|Industry|Liquids",
+    "Final Energy|Industry|Liquids|Oil": "Final Energy|Industry|Liquids",
+    "Final Energy|Residential and Commercial|Liquids|Oil": "Final Energy|Residential and Commercial|Liquids",
+    "Final Energy|Residential and Commercial|Liquids|Biomass": "Final Energy|Residential and Commercial|Liquids",
+    "Final Energy|Transportation|Liquids|Oil": "Final Energy|Transportation|Liquids",
+    "Final Energy|Transportation|Liquids|Biomass": "Final Energy|Transportation|Liquids",
+
+    # Gases
+    "Final Energy|Industry|Gases|Biomass": "Final Energy|Industry|Gases",
+    "Final Energy|Industry|Gases|Natural Gas": "Final Energy|Industry|Gases",
+    "Final Energy|Residential and Commercial|Gases|Natural gas": "Final Energy|Residential and Commercial|Gases",
+    "Final Energy|Residential and Commercial|Gases|Biomass": "Final Energy|Residential and Commercial|Gases",
+    "Final Energy|Transportation|Gases|Natural Gas": "Final Energy|Transportation|Gases",
+    "Final Energy|Transportation|Gases|Biomass": "Final Energy|Transportation|Gases",
+    
+    # Heat
     "Final Energy|Residential and Commercial|Heat|Biomass": "Final Energy|Residential and Commercial|Heat",
     "Final Energy|Residential and Commercial|Heat|Coal": "Final Energy|Residential and Commercial|Heat",
     "Final Energy|Residential and Commercial|Heat|Oil": "Final Energy|Residential and Commercial|Heat",
     "Final Energy|Residential and Commercial|Heat|Gas": "Final Energy|Residential and Commercial|Heat",
     "Final Energy|Residential and Commercial|Heat|Natural Gas": "Final Energy|Residential and Commercial|Heat",
-    "Final Energy|Industry|Heat": "Final Energy|Heat",
     "Final Energy|Industry|Heat|Biomass": "Final Energy|Industry|Heat",
     "Final Energy|Industry|Heat|Coal": "Final Energy|Industry|Heat",
     "Final Energy|Industry|Heat|Oil": "Final Energy|Industry|Heat",
     "Final Energy|Industry|Heat|Gas": "Final Energy|Industry|Heat",
     "Final Energy|Industry|Heat|Natural Gas": "Final Energy|Industry|Heat",
-    ## Block Added 2021_02_03:
+
+    # Split into residential vs.commercial 
+    "Final Energy|Residential": "Final Energy",
+    "Final Energy|Residential|Liquids": "Final Energy|Liquids",
+    "Final Energy|Residential|Gases": "Final Energy|Gases",
+    "Final Energy|Residential|Solids": "Final Energy|Solids",
+    "Final Energy|Residential|Electricity": "Final Energy|Electricity",
+    "Final Energy|Residential|Solids|Coal": "Final Energy|Residential|Solids",
+    "Final Energy|Residential|Solids|Biomass": "Final Energy|Residential|Solids",
+    "Final Energy|Residential|Liquids|Oil": "Final Energy|Residential|Liquids",
+    "Final Energy|Residential|Liquids|Biomass": "Final Energy|Residential|Liquids",
+    "Final Energy|Residential|Gases|Natural Gas": "Final Energy|Residential|Gases",
+    "Final Energy|Residential|Gases|Biomass": "Final Energy|Residential|Gases",
+    "Final Energy|Residential|Heat": "Final Energy|Heat",
+    "Final Energy|Residential|Heat|Biomass": "Final Energy|Residential|Heat",
+    "Final Energy|Residential|Heat|Coal": "Final Energy|Residential|Heat",
+    "Final Energy|Residential|Heat|Oil": "Final Energy|Residential|Heat",
+    "Final Energy|Residential|Heat|Gas": "Final Energy|Residential|Heat",
+    "Final Energy|Residential|Heat|Natural Gas": "Final Energy|Residential|Heat",
+
+    "Final Energy|Commercial": "Final Energy",
+    "Final Energy|Commercial|Liquids": "Final Energy|Liquids",
+    "Final Energy|Commercial|Gases": "Final Energy|Gases",
+    "Final Energy|Commercial|Solids": "Final Energy|Solids",
+    "Final Energy|Commercial|Electricity": "Final Energy|Electricity",
+    "Final Energy|Commercial|Solids|Coal": "Final Energy|Commercial|Solids",
+    "Final Energy|Commercial|Solids|Biomass": "Final Energy|Commercial|Solids",
+    "Final Energy|Commercial|Liquids|Oil": "Final Energy|Residential|Liquids",
+    "Final Energy|Commercial|Liquids|Biomass": "Final Energy|Residential|Liquids",
+    "Final Energy|Commercial|Gases|Natural Gas": "Final Energy|Residential|Gases",
+    "Final Energy|Commercial|Gases|Biomass": "Final Energy|Residential|Gases",
+    "Final Energy|Commercial|Heat": "Final Energy|Heat",
+    "Final Energy|Commercial|Heat|Biomass": "Final Energy|Commercial|Heat",
+    "Final Energy|Commercial|Heat|Coal": "Final Energy|Commercial|Heat",
+    "Final Energy|Commercial|Heat|Oil": "Final Energy|Commercial|Heat",
+    "Final Energy|Commercial|Heat|Gas": "Final Energy|Commercial|Heat",
+    "Final Energy|Commercial|Heat|Natural Gas": "Final Energy|Commercial|Heat",
+
+    ## Secondary Energy mix
     "Secondary Energy|Electricity|Hydro": "Secondary Energy|Electricity",
     "Secondary Energy|Electricity|Coal": "Secondary Energy|Electricity",
     "Secondary Energy|Electricity|Oil": "Secondary Energy|Electricity",
@@ -890,6 +1033,8 @@ dict_y_den = {
     "Secondary Energy|Solids|Solar": "Secondary Energy|Solids",
     "Secondary Energy|Solids|Biomass": "Secondary Energy|Solids",
     "Secondary Energy|Solids|Geothermal": "Secondary Energy|Solids",
+
+    # Primary Energy mix
     "Primary Energy": "Primary Energy",
     "Primary Energy|Hydro": "Primary Energy",
     "Primary Energy|Coal": "Primary Energy",
@@ -900,32 +1045,6 @@ dict_y_den = {
     "Primary Energy|Solar": "Primary Energy",
     "Primary Energy|Biomass": "Primary Energy",
     "Primary Energy|Geothermal": "Primary Energy",
-    "Final Energy|Residential": "Final Energy",
-    "Final Energy|Residential|Liquids": "Final Energy|Liquids",
-    "Final Energy|Residential|Gases": "Final Energy|Gases",
-    "Final Energy|Residential|Solids": "Final Energy|Solids",
-    "Final Energy|Residential|Electricity": "Final Energy|Electricity",
-    "Final Energy|Residential|Solids|Coal": "Final Energy|Residential|Solids",
-    "Final Energy|Residential|Solids|Biomass": "Final Energy|Residential|Solids",
-    "Final Energy|Residential|Heat": "Final Energy|Heat",
-    "Final Energy|Residential|Heat|Biomass": "Final Energy|Residential|Heat",
-    "Final Energy|Residential|Heat|Coal": "Final Energy|Residential|Heat",
-    "Final Energy|Residential|Heat|Oil": "Final Energy|Residential|Heat",
-    "Final Energy|Residential|Heat|Gas": "Final Energy|Residential|Heat",
-    "Final Energy|Residential|Heat|Natural Gas": "Final Energy|Residential|Heat",
-    "Final Energy|Commercial": "Final Energy",
-    "Final Energy|Commercial|Liquids": "Final Energy|Liquids",
-    "Final Energy|Commercial|Gases": "Final Energy|Gases",
-    "Final Energy|Commercial|Solids": "Final Energy|Solids",
-    "Final Energy|Commercial|Electricity": "Final Energy|Electricity",
-    "Final Energy|Commercial|Solids|Coal": "Final Energy|Commercial|Solids",
-    "Final Energy|Commercial|Solids|Biomass": "Final Energy|Commercial|Solids",
-    "Final Energy|Commercial|Heat": "Final Energy|Heat",
-    "Final Energy|Commercial|Heat|Biomass": "Final Energy|Commercial|Heat",
-    "Final Energy|Commercial|Heat|Coal": "Final Energy|Commercial|Heat",
-    "Final Energy|Commercial|Heat|Oil": "Final Energy|Commercial|Heat",
-    "Final Energy|Commercial|Heat|Gas": "Final Energy|Commercial|Heat",
-    "Final Energy|Commercial|Heat|Natural Gas": "Final Energy|Commercial|Heat",
 }
 
 IAM_fuel_dict = {
