@@ -108,7 +108,9 @@ def main(
     ## Read GDP and POP data from Step3
     # csv_suffix = f"results/3_CCS_and_Emissions/GDP_{csv_str}_updated_gdp.csv"
     csv_suffix = f"results/3_CCS_and_Emissions/GDP_{csv_str}_updated_gdp_harmo.csv"  ## harmonized data
-    model = "GCAM5.3_NGFS"
+    # model = "GCAM5.3_NGFS"
+    model = "REMIND-MAgPIE 3.3-4.8"
+    
     if add_gdp:
         df_gdp = fun_add_gdp_step5(csv_suffix, model)
 
