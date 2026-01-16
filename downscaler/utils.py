@@ -8798,6 +8798,8 @@ def fun_reg_harmo_step5b(
     additional_var_to_be_harmo = [
         "Emissions|CO2|Industrial Processes",
         "Emissions|CO2|Energy|Supply|Heat",
+        # "Emissions|CO2|Energy|Supply|Electricity", 
+        # "Emissions|CO2|Energy|Demand|Transportation"
     ]
 
     all_vars = additional_var_to_be_harmo + vars_downs
@@ -18719,13 +18721,15 @@ def fun_get_files_by_model(
     # Sort all files in folder by time of creation
     # https://stackoverflow.com/questions/168409/how-do-you-get-a-directory-listing-sorted-by-creation-date-in-python
     files_all = [
-        str(x).rsplit("\\")[-1] for x in sorted(folder.iterdir(), key=os.path.getmtime)
+        str(x).rsplit("/")[-1] for x in sorted(folder.iterdir(), key=os.path.getmtime)
     ]
 
     scenarios = fun_get_scenarios(project)
     for model in models:
         # All files containing a given model
         filesm = [x for x in files_all if model in x and 'csv' in x]
+        if len(filesm) == 0:
+            raise ValueError(f"Cannot find any csv files for {model} in {folder}")
         if folder == CONSTANTS.CURR_RES_DIR("step1"):
             filesm = [
                 f
@@ -18746,14 +18750,15 @@ def fun_get_files_by_model(
         else:
             files=filesm
         fun = fun_check_if_all_characters_are_numbers
-        if project_in_file_name:
-            files=[x for x in files if project in x]
-        dates = ["_".join([i for i in x.rsplit("_") if fun(i)]) for x in files]
-        match={x:re.search(r'\d{4}_\d{2}_\d{2}', x) for x in dates}
-        dates=list({k:v.group() for k,v in match.items() if v is not None }.values())
-        date = [x for x in dates if len(x.split("_")) == 3][-1]
-        if search is not None:
-            files = [f for f in files if search in f]
+        files, date = get_files_and_date(project, search, project_in_file_name, files, fun)
+
+        if len(files) == 0:
+            print("LEN FILE = 0")
+            # Try again with `project_in_file_name=False`  (e.g. non-co2 emissions files do not contain project name)
+            # print("HERE")
+            # files, date = get_files_and_date(project, search, False, files, fun)
+            pass
+
         # files = [f for f in files if date in f and "csv" in f] # date, csv, project, "WITH_POLICY", "None"
         if len(files) == 1:
             files_dict[model] = files[0]
@@ -18773,8 +18778,9 @@ def fun_get_files_by_model(
                     f"NOTE: we are using unharmonized files for {model} (we could not find `harmo.csv` files)."
                 )
             files_dict[model] = files
-        elif len(files) != 1:
+        elif len(files) > 1:
             txt = "Unable to automatically detect the most recent step5 file for"
+            print("FILES [-1]:", files[-1])
             txt2 = f"This file is the most recent: {files[-1]} \n do you want to continue (y/n)? Or please type your selected file"
             # raise ValueError(f"{txt} {model}. We found multiple files: {files}. {txt2}")
 
@@ -18787,9 +18793,21 @@ def fun_get_files_by_model(
                 raise ValueError(
                     f"Simulation aborted by the user (user input={action})"
                 )
+        elif len(files) ==0 : 
+            pass
 
     return files_dict
 
+def get_files_and_date(project, search, project_in_file_name, files, fun):
+    if project_in_file_name:
+        files=[x for x in files if project in x]
+    dates = ["_".join([i for i in x.rsplit("_") if fun(i)]) for x in files]
+    match={x:re.search(r'\d{4}_\d{2}_\d{2}', x) for x in dates}
+    dates=list({k:v.group() for k,v in match.items() if v is not None }.values())
+    date = [x for x in dates if len(x.split("_")) == 3][-1]
+    if search is not None:
+        files = [f for f in files if search in f]
+    return files, date
 
 def fun_read_results(
     project: str,
@@ -18858,6 +18876,7 @@ def fun_read_results(
         # elif isinstance(files, list):
         else:
             files_dict = {m: files for m in models}
+    
     if not len(df):
         if "1_Final_Energy" in str(folder):
             for m, file in files_dict.items():
@@ -18866,6 +18885,7 @@ def fun_read_results(
                 )
         else:
             for m, file in files_dict.items():
+                print(file)
                 df = pd.concat([df, fun_read_csv_or_excel(file, [m], folder=folder)])
                 print(f"reading {file}")
 
@@ -18886,6 +18906,8 @@ def fun_read_results(
     model_dict = {x: x.replace("Downscaling[", "").replace("]", "").replace('_downscaled','') for x in models}
     if set(model_dict.values()) != set(model_dict.keys()):
         # if model_dict has the same keys/values pair there is no need to rename models
+        if 'MODEL' in df.index.get_level_values('MODEL'):
+            df=df.drop('MODEL', level='MODEL')
         df = df.rename(model_dict)
         models = df.reset_index().MODEL.unique()
     if len(df) == 0:
@@ -27505,3 +27527,101 @@ def step1_get_detailed_method_info(df: pd.DataFrame) -> pd.DataFrame:
     df['Scale'] = [d3.get(x, 'default') for x in df.METHOD]
     
     return df
+
+def fun_get_regions(project: str, model: str, sub_folder: str = 'multiple_df') -> Dict[str, List[str]]:
+    """
+    Retrieve regions and their associated country mappings for a given project and model.
+
+    Args:
+        project (str): The name of the project, used to locate input data.
+        model (str): The name of the model (e.g., "AIM/CGE"), which is processed to match mapping keys.
+        sub_folder (str, optional): Subdirectory name containing data files. Defaults to 'multiple_df'.
+
+    Returns:
+        Dict[str, List[str]]: A dictionary mapping regions (keys) to lists of associated countries (values).
+    """
+    # Read IAM data from the specified model and project directory
+    df = fun_read_df_iam_from_multiple_df(model, CONSTANTS.INPUT_DATA_DIR / project / sub_folder)
+    
+    # Extract unique regions and append 'r' suffix
+    regions = [x for x in df.reset_index().REGION.unique()]
+    regions = [f"{x.split('|')[1]}r" if '|' in x else f"{x}r" for x in regions]
+    
+    # Rename the model string to replace '/' with '_' (e.g., "AIM/CGE" -> "AIM_CGE")
+    model_renamed = model.replace('/', '_')  
+    
+    # Get the regional-to-country mapping as a dictionary
+    regmap = fun_regional_country_mapping_as_dict(model_renamed, project)
+    
+    # Filter the mapping to include only relevant regions
+    return {k: v for k, v in regmap.items() if k in regions}
+
+
+def fun_harmonize_df_iam_with_hist_data(
+    r: str,
+    countrylist: List[str],
+    df_iam: pd.DataFrame,
+    hist: pd.DataFrame,
+    main_var: str = 'Emissions|CO2|Energy',
+    vars_to_be_harmo: List[str] = [
+        'Emissions|CO2|Energy',
+        'Emissions|CO2|Energy|Demand|Transportation',
+        'Emissions|CO2|Energy|Demand|Industry',
+        'Emissions|CO2|Energy|Supply|Heat',
+        'Emissions|CO2|Energy|Supply|Electricity',
+        'Emissions|CO2|Energy|Demand|Residential and Commercial'
+    ],
+    tc: Optional[int] = 2050
+) -> pd.DataFrame:
+    """
+    Harmonize IAM data with historical data for a given region and set of variables.
+    It works with data in IAMC format. Index names in the two dataframes must be the same.
+    
+    It rescales IAMs data to match historical 2020 data for a main variable `main_var` using a ratio harmonization. 
+    Then rescales all other variables `vars_to_be_harmo` by the same percentange - to keep sectorial consistency.
+    If `tc` is None a ratio harmonization will be applied over the whole time periods.
+    Otherwise, it will apply a ratio harmonization up to the time of convergence, as we do in step_5e
+    (beyond the time of convergence `tc` IAMs data will remain unchanged).
+    
+
+    Args:
+        r (str): The name of the region.
+        countrylist (List[str]): List of countries within the specified region.
+        df_iam (pd.DataFrame): DataFrame containing IAM data.
+        hist (pd.DataFrame): DataFrame containing historical data.
+        main_var (str, optional): The primary variable for ratio calculation. Defaults to 'Emissions|CO2|Energy'.
+        vars_to_be_harmo (List[str], optional): List of variables to harmonize. Defaults to a predefined list of variables.
+        tc (Optional[int], optional): The time of convergence for harmonization. If None, no convergence is applied. Defaults to 2050.
+
+    Returns:
+        pd.DataFrame: The harmonized IAM data.
+    """
+    # Calculate ratio of historical data to IAM data for the main variable
+    ratio = (
+        fun_xs(hist, {'REGION': countrylist, 'VARIABLE': main_var})
+        .groupby('SCENARIO').sum() /
+        df_iam.xs((r, main_var), level=("REGION", "VARIABLE")).droplevel(['MODEL', 'UNIT'])
+    )[[2010, 2015, 2020]]
+    
+    # Drop rows with all NaN values and extend ratio over future years
+    ratio = ratio.dropna(how='all')
+    add = pd.concat([ratio[[2020]].rename({2020: x}, axis=1) for x in range(2020, 2055, 5)], axis=1)
+    ratio = pd.concat([ratio.dropna(how='all', axis=1), add], axis=1)
+
+    # Apply the ratio to harmonize the IAM data
+    df_iam_harmo = fun_xs(
+        fun_add_multiply_dfmultindex_by_dfsingleindex(df_iam, ratio, operator='*'),
+        {"VARIABLE": vars_to_be_harmo}
+    )
+
+    # If no time of convergence is specified, return the harmonized data
+    if tc is None:
+        return fun_xs(df_iam_harmo, {"REGION":r})
+
+    # Apply composite weighting for harmonization up to the time of convergence
+    w = fun_discount_rate(range(2010, 2105, 5), range(2010, 2025, 5), tc, 1, 0)
+    df_iam_composite = df_iam_harmo * w + (1 - w) * fun_xs(df_iam, {"VARIABLE": vars_to_be_harmo})
+    
+    return fun_xs(df_iam_composite, {"REGION":r})
+
+

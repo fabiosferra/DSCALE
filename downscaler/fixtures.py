@@ -1806,6 +1806,8 @@ step1_var = [
     "Final Energy|Transportation|Gases",
     "Final Energy|Transportation|Hydrogen",
     "Final Energy|Transportation|Liquids",
+    # "Final Energy|Transportation|Liquids|Oil",
+    # "Final Energy|Transportation|Liquids|Biomass",
 ]
 
 step2_var = [
@@ -2437,6 +2439,40 @@ step5f_dict2 = {
         "Emissions|CO2|Energy|Demand|Transportation|Ships",
     ],
 }
+
+step5f_dict3 = {
+   "Emissions|CO2|Energy|Demand|Industry": [
+        "Emissions|CO2|Energy|Demand|Industry|Liquids",
+        "Emissions|CO2|Energy|Demand|Industry|Gases",
+        "Emissions|CO2|Energy|Demand|Industry|Solids|Biomass",
+        "Emissions|CO2|Energy|Demand|Industry|Solids|Coal",
+    ],
+    "Emissions|CO2|Energy|Demand|Transportation": [
+        "Emissions|CO2|Energy|Demand|Transportation|Liquids",
+        "Emissions|CO2|Energy|Demand|Transportation|Gases",
+    ],
+    "Emissions|CO2|Energy|Demand|Residential and Commercial": [
+        "Emissions|CO2|Energy|Demand|Residential and Commercial|Liquids",
+        "Emissions|CO2|Energy|Demand|Residential and Commercial|Solids",
+        "Emissions|CO2|Energy|Demand|Residential and Commercial|Gases",
+    ],
+
+    "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS": [
+        "Emissions|CO2|Energy|Supply|Electricity|Coal",
+        "Emissions|CO2|Energy|Supply|Electricity|Gas",
+        "Emissions|CO2|Energy|Supply|Electricity|Oil",
+    ],
+
+}
+
+# Applies to df_iam
+step5f_temp_vars_dict_df_iam={"Emissions|CO2|Energy EXCL BECCS": {"Emissions|CO2|Energy":1,
+                                                        "Carbon Sequestration|CCS|Biomass":1},
+                            "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS":{'Emissions|CO2|Energy|Supply|Electricity':1,
+                                                                         "Carbon Sequestration|CCS|Biomass|Energy|Supply|Electricity":1,
+                                                                         }
+    }
+
 
 step5f_temp_vars_dict={"Emissions|CO2|Energy EXCL BECCS": {"Emissions|CO2|Energy":1,
                                                         "Carbon Sequestration|CCS|Biomass":-1},
