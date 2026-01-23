@@ -104,7 +104,7 @@ def main(
     default_ssp_scenario="SSP2",
     gdp_model="NGFS",
     pop_model="IIASA-WiC POP",
-    harmonize_eea_data_until=2018,
+    harmonize_eea_data_until=2022,
     countrylist=fun_eu27(),
     aggregated_region_name="EU27",
     n_jobs=6,  #  -1 means run the maximum number of parallel processes. for details see: https://joblib.readthedocs.io/en/latest/generated/joblib.Parallel.html
