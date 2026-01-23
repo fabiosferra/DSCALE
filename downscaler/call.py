@@ -10,17 +10,21 @@ d= {
     'config_file_name':'REMIND_2025_for_testing/config.yaml', # Add path to the `config.yaml` file
     'list_of_models': ['*'], # Run only the MESSAGE model
     'list_of_regions': ['*'], # Run all regions
-    'list_of_targets':["NPE-core", "NPE-demandStandard"],# Run all scenarios 
-    'file_suffix':'2025_12_12_test', # Suffix of your file name (should contain a date)
+    'list_of_targets':["NPE-core"],# Run all scenarios 
+    'file_suffix':'2026_01_21', # Suffix of your file name (should contain a date)
     'n_jobs':3, # Run of CPUs for job parallelization - usually 6 is the max for Fabio
     "coerce_errors":True # Runs
 }
 
 
-steps=['step0', 'step1', 'step1b','step2', 'step3',
-       'step5','step5b','step5c','step5c_bis', 
-       'step5c_tris','step5d','step5e','step4',
-       'step5e_after_policy','step6']
+steps=[
+    'step0', 'step1', 'step1b','step2', 'step3',
+    'step5','step5b','step5c','step5c_bis', 
+    'step5c_tris','step5d', 'step5e',
+    'step4',
+    'step5e_after_policy',
+    'step6'
+]
 
 steps={s:False for s in steps}
 project=d['config_file_name'].split('/')[0]

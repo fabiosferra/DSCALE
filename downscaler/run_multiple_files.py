@@ -116,37 +116,15 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 
 if __name__ == "__main__":
     main_with_yaml_config(
-        # config_file_name="NGFS_2023_s_curve/config.yaml", # LOG-LOG/SCURVE Sensitivity analysis
-        config_file_name="REMIND_2025_for_testing/config.yaml", # NGFS 2024 not working
-        # config_file_name="myproject_2024/config.yaml", # NGFS 2024
-        # config_file_name="SIMPLE_hindcasting_enhanced_GDP/config.yaml", # HINDCASTING
+        config_file_name="REMIND_2025_AR6_Template/config.yaml", # NGFS 2024 not working
         list_of_models=["*"],
-        #  list_of_regions=["*"],
-        list_of_regions=["AUS"], # tried with IDN, BRA and MAR (worked with MAR)
-        # list_of_models=['*REMIND*'],
-        # list_of_regions=['*Can*'],
-        # list_of_models=['*'],
-        # list_of_regions=['EU27'],
-        # list_of_regions=['ALB', 'BIH', 'CHE', 'ISL', 'MKD', 'MNE', 'NOR', 'SRB', 'TUR'],
-        file_suffix='2025_12_12_test',
-        list_of_targets=["NPE-core", "NPE-demandStandard"],
-        # list_of_models=["*"],
-        # list_of_regions=['SYR'],
-        # file_suffix='2024_04_12_ALL_countries',
-        # list_of_regions=["*Rest Centra*",'*Western Eu*', '*South Asia*', '*Sub*'],
-        # list_of_regions=["*Asia*"],#["*Rest Centrally Planned*"],
-        # file_suffix="2024_02_21",
+        list_of_regions=["*"], # Need to put a country's iso code, not a region
+        file_suffix='2026_01_20_harmonised',
+        list_of_targets=["NPE-core"],
         # add_gdp=False,## Just for this test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # add_gdp_pop_data=False, ## Just for this test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # run_sensitivity=True, # to make step1b graphs (log-log)
-        # config_file_name="NGFS_2023/config.yaml",
-        # file_suffix="2023_11_07_test",
-        # list_of_targets=["h_cpol",
-        #                 # "*h_ndc*",  
-        #                 #  "*d_delfrag*", 
-        #                 #"o_1p5c", 
-        #                 #  "*o_2*"
-        #                  ],
+
         # n_sectors=1,#['Final Energy|Residential and Commercial|Gases', 'Final Energy|Transportation|Gases'], # Can be a number or a list of sectors
         run_sensitivity_from_step2_to_5=False,
         random_electricity_weights=False,
@@ -167,7 +145,7 @@ if __name__ == "__main__":
         # step5c_tris=False,  # afolu
         # step5d=False,  # eu27 and aggregate results from multiple files
         # step5e=False,  # harmonize with historical data
-        # step4=False,
+        # step4=False,c
         # step5e_after_policy=False,
         # step6=False,
     )
