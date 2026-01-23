@@ -1252,6 +1252,8 @@ vars_to_be_harmo_step5 = [
 ] + vars_to_be_harmo_step2
 
 list_of_fuels = [
+    # Add additional fuels here (Electricity)
+    "Electricity",
     "Biomass",
     "Coal",
     "Gas",
