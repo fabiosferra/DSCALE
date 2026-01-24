@@ -18949,6 +18949,7 @@ def run_sector_harmo_enhanced_iamc(
     dicts: List[dict],
     df_iam: Optional[pd.DataFrame] = None,
     no_iter: int = 2,
+    verbose: bool = True
 ) -> pd.DataFrame:
     """Returns dataframe (`df`) with harmonized sub-sectors based on a list of dictionaries `dict`
     and a given `project` (from which we get the regional mapping).
@@ -18993,13 +18994,18 @@ def run_sector_harmo_enhanced_iamc(
             df_selr = df_selm.xs(s, level="SCENARIO", drop_level=False)
             for r, clist in regions_dict.items():
                 df_sel = fun_xs(df_selr, {"REGION": clist})
+                if len(df_sel) == 0:
+                    continue
                 df_sel = fun_step2_format_from_iamc(
                     fun_rename_index_name(df_sel, {"REGION": "ISO"})
                 )
                 df_sel = fun_from_step2_to_step1b_format(df_sel, s, cols=[""])
+                if 'METHOD' not in df_sel.index.names:
+                    df_sel['METHOD']=''
+                    df_sel=df_sel.set_index('METHOD', append=True)
                 for _ in range(no_iter):
                     for d in dicts:
-                        df_sel = run_sector_harmo_enhanced(df_sel, d, "", df_iam)
+                        df_sel = run_sector_harmo_enhanced(df_sel, d, "", df_iam, verbose=verbose)
                 # TODO
                 df_sel = fun_from_step2_to_step1b_format(
                     df_sel, s, cols=[""], reverse=True
