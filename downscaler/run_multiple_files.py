@@ -116,11 +116,12 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 
 if __name__ == "__main__":
     main_with_yaml_config(
-        config_file_name="REMIND_2025_AR6_Template/config.yaml", # NGFS 2024 not working
+        config_file_name="REMIND_fuel_mix_testing/config.yaml", # NGFS 2024 not working
         list_of_models=["*"],
-        list_of_regions=["*"], # Need to put a country's iso code, not a region
-        file_suffix='2026_01_20_harmonised',
+        list_of_regions=["BRA"], # tried with IDN, BRA and MAR (worked with MAR)
+        file_suffix='fuel_mix_testing_30012026',
         list_of_targets=["NPE-core"],
+
         # add_gdp=False,## Just for this test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # add_gdp_pop_data=False, ## Just for this test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # run_sensitivity=True, # to make step1b graphs (log-log)
