@@ -2215,11 +2215,11 @@ step5e_harmo = [
     "Final Energy|Industry|Solids|Coal",
     "Final Energy|Industry|Liquids",
     "Final Energy|Industry|Liquids|Biomass",
-    # "Final Energy|Industry|Liquids|Oil",
+    "Final Energy|Industry|Liquids|Oil",
     "Final Energy|Industry|Liquids|Electricity",
     "Final Energy|Industry|Gases",
     "Final Energy|Industry|Gases|Biomass",
-    # "Final Energy|Industry|Gases|Natural Gas",
+    "Final Energy|Industry|Gases|Natural Gas",
     "Final Energy|Industry|Gases|Electricity",
 
     "Final Energy|Residential and Commercial",
@@ -2231,11 +2231,11 @@ step5e_harmo = [
     "Final Energy|Residential and Commercial|Solids|Coal",
     "Final Energy|Residential and Commercial|Liquids",
     "Final Energy|Residential and Commercial|Liquids|Biomass",
-    # "Final Energy|Residential and Commercial|Liquids|Oil",
+    "Final Energy|Residential and Commercial|Liquids|Oil",
     "Final Energy|Residential and Commercial|Liquids|Electricity",
     "Final Energy|Residential and Commercial|Gases",
     "Final Energy|Residential and Commercial|Gases|Biomass",
-    # "Final Energy|Residential and Commercial|Gases|Natural Gas",
+    "Final Energy|Residential and Commercial|Gases|Natural Gas",
     "Final Energy|Residential and Commercial|Gases|Electricity",
 
     "Final Energy|Transportation",
@@ -2247,11 +2247,11 @@ step5e_harmo = [
     "Final Energy|Transportation|Solids|Coal",
     "Final Energy|Transportation|Liquids",
     "Final Energy|Transportation|Liquids|Biomass",
-    # "Final Energy|Transportation|Liquids|Oil",
+    "Final Energy|Transportation|Liquids|Oil",
     "Final Energy|Transportation|Liquids|Electricity", #Why is it not complaining about this? TO INVESTIGATE
     "Final Energy|Transportation|Gases",
     "Final Energy|Transportation|Gases|Biomass",
-    # "Final Energy|Transportation|Gases|Natural Gas",
+    "Final Energy|Transportation|Gases|Natural Gas",
     "Final Energy|Transportation|Gases|Electricity",
 
 ]
