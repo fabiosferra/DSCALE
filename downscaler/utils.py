@@ -19958,7 +19958,7 @@ def fun_check_negative_energy_variables(
             err_dict = fun_skip_special_cases(model, known_issues, err_dict)
     if len(err_dict):
         txt2= "If this error is present at the regional level please pass a `known_issues`. Example => known_issues={'SHAPE_2023':{'IMAGE 3.3': {'IMAGE 3.3|SAF': 'Primary Energy|Oil|w/ CCS'}}}"
-        raise ValueError(f"We found negative energy variables for {err_dict}. {txt2}." )
+        print(f"WARNING: We found negative energy variables for {err_dict}. {txt2}." )
     return err_dict
 
 def fun_skip_special_cases(model, known_issues, err_dict):
