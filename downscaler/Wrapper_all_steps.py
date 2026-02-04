@@ -21,6 +21,7 @@ from downscaler import (
     AFOLU_emissions,  # step 5c tris
     Step_5d_aggregated_regions_5d,
     Step_5e_historical_harmo,
+    Step_5g_synfuels,
     visualization_6,
 )
 from downscaler.input_caching import get_selection_dict
@@ -98,6 +99,7 @@ def main(
     step5c_tris=False,
     step5d=False,
     step5e=False,
+    step5g=False,  # (optional) Synfuels calculation
     step4=False,  # (optional)
     step5e_after_policy=False,
     step6=False,
@@ -625,6 +627,15 @@ def main(
             keep_step5_emissions=keep_step5_emissions,
             # aggregate_non_iea_countries=True,
             # aggregate_eu_27=True,
+        )
+
+    if step5g:
+        Step_5g_synfuels.main(
+            project_folder=project_folder,
+            file_suffix=file_suffix,
+            list_of_targets=list(targets),
+            list_of_models=list(models),
+            harmonisation_date=harmonize_eea_data_until,
         )
 
     sens_list = [""]

@@ -119,7 +119,7 @@ if __name__ == "__main__":
         config_file_name="REMIND_fuel_mix_testing/config.yaml", # NGFS 2024 not working
         list_of_models=["*"],
         list_of_regions=["BRA"], # tried with IDN, BRA and MAR (worked with MAR)
-        file_suffix='fuel_mix_testing_30012026',
+        file_suffix='fuel_mix_testing_03022026',
         list_of_targets=["NPE-core"],
 
         # add_gdp=False,## Just for this test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -146,7 +146,8 @@ if __name__ == "__main__":
         # step5c_tris=False,  # afolu
         # step5d=False,  # eu27 and aggregate results from multiple files
         # step5e=False,  # harmonize with historical data
-        # step4=False,c
+        # step5g=False,  # synfuels calculation (auto-detects regions with data)
+        # step4=False,
         # step5e_after_policy=False,
         # step6=False,
     )
