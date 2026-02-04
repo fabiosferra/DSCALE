@@ -1131,11 +1131,11 @@ def fun_add_units(
     if extra_units_dict:
         unit_dict_reshaped = {x: k for k, v in extra_units_dict.items() for x in v}
         conflicts = set(unit_dict_reshaped.keys()).intersection(set(unit_dict.keys()))
-        if conflicts:
-            print(
-                f"WARNING: We found conflicting units info (among `df_iam` and `extra_units_dict` ) for these variables: {unit_dict}"
-                "For these we info from `extra_units_dict`"
-            )
+        # if conflicts:
+            # print(
+            #     f"WARNING: We found conflicting units info (among `df_iam` and `extra_units_dict` ) for these variables: {unit_dict}"
+            #     "For these we info from `extra_units_dict`"
+            # )
         unit_dict.update(unit_dict_reshaped)
 
     # NOTE unit_dict contains all the variables that we want to keep in df. These are

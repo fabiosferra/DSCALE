@@ -18384,7 +18384,8 @@ def run_sector_harmo_enhanced(
     d: dict,
     x: str,
     df_iam: Optional[pd.DataFrame] = None,
-    w:int=1 # 1 is our standard assumption (we do not sum sub-sector -> sum_anyway=False ). 0 means we sum anyway
+    w:int=1, # 1 is our standard assumption (we do not sum sub-sector -> sum_anyway=False ). 0 means we sum anyway
+    verbose:bool = True,
     # d2:dict= None,
 ) -> pd.DataFrame:
     """Run sectorial harmonization in your `df` based on a dictionary (`d`), for a given
@@ -18402,6 +18403,8 @@ def run_sector_harmo_enhanced(
     For this reason it also take a bit longer compared to `run_sector_harmo`.
     Apart from that, the two functions are very similar in terms of performance (try to ensure that
     the sum of sub-sectors matches the main sector).
+
+    TODO: 
 
     Parameters
     ----------
@@ -18429,7 +18432,7 @@ def run_sector_harmo_enhanced(
     pd.DataFrame
         Updated dataframe
     """
-    if df_iam is None:
+    if df_iam is None and verbose:
         print(
             "Will skip harmonization with regional IAMs results, because you did not pass a `df_iam`"
         )
@@ -18451,7 +18454,7 @@ def run_sector_harmo_enhanced(
         if k in df[x].reset_index().SECTOR.unique():
             # step1 make sure that `k` (e.g. final energy) matches regional iam results
             df = (
-                fun_harmonize_df_with_IAM(df, df_iam, x, k)
+                fun_harmonize_df_with_IAM(df, df_iam, x, k, verbose=verbose)
                 if df_iam is not None
                 else df
             )
@@ -18490,6 +18493,22 @@ def run_sector_harmo_enhanced(
             v_updated = ratio.fillna(1)*v_updated0 # NOTE keep `ratio` on the left hand side!! This maintain the same index
             v_updated = v_updated.dropna()  # this line is needed
 
+            # v_updated_clipped=pd.DataFrame()
+            # v_updated = v_updated.reset_index().set_index(df.index.names)
+            # for vv in v:
+            #     df_v_updated=pd.DataFrame(v_updated.xs(vv, level='SECTOR', drop_level=False)).reset_index().set_index(df.index.names)
+            #     df1_min=df.xs(fun_invert_dictionary(d)[vv][0], level='SECTOR', drop_level=False).rename({fun_invert_dictionary(d)[vv][0]:vv})
+            #     df2_min=pd.DataFrame()
+            #     if d2 is not None:
+            #         df2_min=df.xs(fun_invert_dictionary(d2)[vv][0], level='SECTOR', drop_level=False).rename({fun_invert_dictionary(d2)[vv][0]:vv})
+            #     # NOTE: example: 'Final Energy|Transportation|Liquids' (in `df_v_updated`) should be smaller than 'Final Energy|Liquids' (e.g. in df1_min) as well as  'Final Energy|Transportation' (e.g. in df2_min)   
+            #     df_v_updated=fun_min_across_datasets([df_v_updated, df1_min, df2_min,]).reset_index().set_index(v_updated.index.names)
+            #     try:
+            #         v_updated=fun_min_across_datasets([df_v_updated, v_updated]).reset_index().set_index(v_updated.index.names)
+            #     except:
+            #         agvhj=1
+            #         print('fix this')
+
             if len(v_updated) == 0:
                 raise ValueError(
                     "Unable to rescale sectors, `v_updated` is empty, please check your data"
@@ -18506,13 +18525,12 @@ def run_sector_harmo_enhanced(
             # step3 - Same as step1 (but for each of the sub_sectors). NOTE: create a function for step1 so that can be re-used here
             for vv in v:
                 df = (
-                    fun_harmonize_df_with_IAM(df, df_iam, x, vv)
+                    fun_harmonize_df_with_IAM(df, df_iam, x, vv, verbose=verbose)
                     if df_iam is not None
                     else df
                 )
 
     return pd.concat([df, df_drop], axis=1)
-
 
 def fun_sum_of_sub_sectors(df, x, k, v, sum_anyway: bool = False):
     df = df.copy(deep=True)
@@ -18531,7 +18549,8 @@ def fun_sum_of_sub_sectors(df, x, k, v, sum_anyway: bool = False):
     return df
 
 
-def fun_harmonize_df_with_IAM(df, df_iam, x, k):
+def fun_harmonize_df_with_IAM(df, df_iam, x, k, verbose: bool = True) -> pd.DataFrame:
+    """ TODO: Write docstring for function"""
     df = df.copy(deep=True)
     regions = df_iam.reset_index().REGION.unique()
     if len(regions) != 1:
@@ -18541,10 +18560,12 @@ def fun_harmonize_df_with_IAM(df, df_iam, x, k):
     df_sectors = df.reset_index().SECTOR.unique()
     txt = "This variable will be not harmonized to match regional IAMs results"
     if k not in iam_sectors:
-        print(f"Cannot find {k} in `df_iam`. {txt}")
+        if verbose:
+            print(f"Cannot find {k} in `df_iam`. {txt}")
         return df
     if k not in df_sectors:
-        print(f"Cannot find {k} in `df`. {txt}")
+        if verbose:
+            print(f"Cannot find {k} in `df`. {txt}")
         return df
 
     # Check if there are missing data/years in the `df.index`. (because the df.stack() method drops np.nan)
@@ -18572,12 +18593,15 @@ def fun_harmonize_df_with_IAM(df, df_iam, x, k):
         ratio = 1 / (
             num.replace(0,np.nan) / df_iam.xs(k, level="VARIABLE").droplevel(["UNIT", "REGION", "MODEL"]).T
         )
+        ratio = ratio.replace(np.inf, np.nan)
     except:
-        a=1
-    ratio = ratio.replace(np.inf, np.nan)
+        ratio=1
+    if not isinstance(ratio, int):
+        ratio=ratio.T
+        
     k_updated = (
         df.xs(k, level="SECTOR")[x].unstack("TIME").reset_index().set_index(u + ["ISO"])
-        * ratio.T
+        * ratio
     )
     k_updated = k_updated.stack(dropna=False)
     k_updated.index.names = ["TIME" if x is None else x for x in k_updated.index.names]
