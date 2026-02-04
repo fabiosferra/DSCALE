@@ -1186,7 +1186,7 @@ def fun_single_figure_with_subplots_by_country(
 if __name__ == "__main__":
     main(
         # project_folder="EU_climate_advisory_board_2023",
-        files=["Step5d.csv", "snapshot_all_regions.csv"],
+        files=["Step5d.csv", "snapshot_all_regions.csv"], #Neil: Do I need to change this?
         ### BELOW EU AB
         models_dict={
             # "EU_climate_advisory_board": [
@@ -1211,14 +1211,14 @@ if __name__ == "__main__":
             #     #### "MESSAGEix-GLOBIOM 1.0", #Eastern EU did not go through
             # ],
             # # "EU_climate_advisory_board_2023_remind": ["REMIND 3.1"], # Will be replaced by "REMIND 3.2"
-            "EU_climate_advisory_board_2023_ECEMF": [
+            "REMIND_fuel_mix_testing": [
                 # "WITCH 5.1",  # eu 27 native
                 # "REMIND 2.1",  # eu 27 native
                 # "PRIMES 2022",  # eu 27 native
                 # "Euro-Calliope 2.0",  # eu 27 native
                 ### "MESSAGEix-GLOBIOM 1.2",  # downscaled # energy related emissions missing
                 ### "IMAGE 3.2",  #  downscaled # energy related emissions missing
-                "REMIND 3.2",  # EU 27 native
+                "REMIND-MAgPIE 3.3-4.8",  # EU 27 native
             ],
         },
         # baseyear="2010",
@@ -1236,17 +1236,17 @@ if __name__ == "__main__":
         harmonize_eea_data_until=2023,
         interpolate=True,
         use_iea_data_from_ed=True,  # IEA energy data
-        use_eea_data=True,  # EMISSIONS DATA
+        use_eea_data=False,  # EMISSIONS DATA
         harmonize_hist_data=True,
         search_in_input_data_native_iam_results=False,
         # selected_scenarios= "EU_climate_advisory_board_2023/Ed_pass_scenarios_category_c1b.csv",
         # selected_scenarios="EU_climate_advisory_board_2023/vetting_flags_global_regional_combined_20230508.csv",  # https://iiasahub.sharepoint.com/:x:/r/sites/eceprog/Shared%20Documents/Projects/EUAB/vetting/vetting_flags_global_regional_combined_20230508.xlsx?d=w66181f6d1fce43a0a84ffa15c67f18a2&csf=1&web=1&e=vp20uV
-        selected_scenarios="EU_climate_advisory_board_2023/vetting_flags_global_regional_combined_20230512.csv",  # https://iiasahub.sharepoint.com/:x:/r/sites/eceprog/Shared%20Documents/Projects/EUAB/vetting/vetting_flags_global_regional_combined_20230512.xlsx?d=w70d75f1721804459a3713772be5393b0&csf=1&web=1&e=Oc9rTR
+        selected_scenarios=["NPE-core"],  # https://iiasahub.sharepoint.com/:x:/r/sites/eceprog/Shared%20Documents/Projects/EUAB/vetting/vetting_flags_global_regional_combined_20230512.xlsx?d=w70d75f1721804459a3713772be5393b0&csf=1&web=1&e=Oc9rTR
         # selected_scenarios="EU_climate_advisory_board_2023/selected_eu_ab_scenario.csv",  # 24 PA scenarios (excluding GCAM PR_EU_55ZE_EI with negative non-co2 emissions)
-        selected_regions=["EU27"],
+        selected_regions=["*"],
         # feasibility_file_name="feasibility_2050_type1.csv",
         # feasibility_file_name="feasibility_2050_type3.csv",
-        feasibility_file_name="filtering_v11_30_05_2023.csv",
+        feasibility_file_name=None,
         # plot_sel_model_dict={
         #     #'GCAM-PR 5.3': ['PR_EU_55NZE_ETS'],
         #     "REMIND 3.1": [
