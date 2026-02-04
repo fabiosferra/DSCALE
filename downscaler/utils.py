@@ -14577,16 +14577,19 @@ def fun_read_df_iam_from_multiple_df(model: str, datadir: Path) -> pd.DataFrame:
     )
     while flag < 1:
         for file in file_list:
-            df_iam = pd.read_csv(file)
-            df_iam.columns = [x.upper() for x in df_iam.columns]
-            model_read = (
-                df_iam.reset_index().MODEL.unique()[0].replace("_downscaled", "")
-            )
-            if model == model_read:
-                flag = 1
-                break
-            if file == list(datadir.iterdir())[-1]:
-                raise ValueError(f"Cannot find df_iam for {model} model")
+            if not '.csv' in str(file):
+                continue
+            else:
+                df_iam = pd.read_csv(file)
+                df_iam.columns = [x.upper() for x in df_iam.columns]
+                model_read = (
+                    df_iam.reset_index().MODEL.unique()[0].replace("_downscaled", "")
+                )
+                if model == model_read:
+                    flag = 1
+                    break
+                if file == list(datadir.iterdir())[-1]:
+                    raise ValueError(f"Cannot find df_iam for {model} model")
     df_iam = df_iam.set_index(["MODEL", "REGION", "VARIABLE", "UNIT", "SCENARIO"])
     return df_iam
 
@@ -15806,7 +15809,7 @@ def fun_discount_rate(
             for x in all_time_cols
             if x not in discount_rate.columns
         ]
-        discount_rate = discount_rate.sort_index(axis=1).interpolate(axis=1).loc[0]
+        discount_rate = discount_rate.sort_index(axis=1).interpolate(axis=1,method='index').loc[0]
     return discount_rate
 
 
@@ -15926,6 +15929,7 @@ def fun_harmonize_hist_data(
     [adj.insert(len(adj.columns), x, adj[baseyear]) for x in missing_cols]
 
     # discount rate equal to zero at the time of convergence
+    tc = 2080
     disc = fun_discount_rate(df.columns, cols, tc, 1, 0)
     if method == "offset":
         # offset multiplied by discount rate
@@ -16299,6 +16303,8 @@ def fun_add_variables_and_harmonize(
                     var,
                     iea_var_dict,
                 )
+            else:
+                print(f'{var} NOT HARMONISED -> NOT AVAILABLE IN DF_MERGED')
 
     if "Emissions|CO2" in df_merged.reset_index().VARIABLE.unique():
         df_merged = df_merged.drop("Emissions|CO2", level="VARIABLE")
