@@ -1601,11 +1601,11 @@ step5b_sect_consistency_downs_data = {
         "Emissions|CO2|Energy|Supply|Heat",
         "Emissions|CO2|Energy|Demand|Transportation",
     ],
-    "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS": {
+    "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS": [
         "Emissions|CO2|Energy|Supply|Electricity|Coal",
         "Emissions|CO2|Energy|Supply|Electricity|Gas",
         "Emissions|CO2|Energy|Supply|Electricity|Oil",
-    },
+    ],
     "Emissions|CO2|Energy|Demand|Industry": [
         "Emissions|CO2|Energy|Demand|Industry|Liquids",
         "Emissions|CO2|Energy|Demand|Industry|Gases",
@@ -2463,12 +2463,11 @@ step5f_dict1 = {
         "Emissions|CO2|Energy|Gas",
         "Emissions|CO2|Energy|Oil",
     ],
-   
-    "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS": {
+    "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS": [
         "Emissions|CO2|Energy|Supply|Electricity|Coal",
         "Emissions|CO2|Energy|Supply|Electricity|Gas",
         "Emissions|CO2|Energy|Supply|Electricity|Oil",
-    },
+    ],
     "Emissions|CO2|Energy|Demand|Industry": [
         "Emissions|CO2|Energy|Demand|Industry|Liquids",
         "Emissions|CO2|Energy|Demand|Industry|Gases",
@@ -2486,26 +2485,17 @@ step5f_dict1 = {
     ],
 }
 
-
 step5f_dict2 = {
-
     "Emissions|CO2|Energy EXCL BECCS": [
         # "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS",
         "Emissions|CO2|Energy|Supply|Electricity|Gas",
         "Emissions|CO2|Energy|Supply|Electricity|Coal",
         "Emissions|CO2|Energy|Supply|Electricity|Oil",
-
-        "Emissions|CO2|Energy|Demand|Industry",
-        "Emissions|CO2|Energy|Demand|Residential and Commercial",
-        "Emissions|CO2|Energy|Supply|Heat",
-        "Emissions|CO2|Energy|Demand|Transportation",
-    ],
-    "Emissions|CO2|Energy|Demand|Transportation": [
-        "Emissions|CO2|Energy|Demand|Transportation|Air Travel",
-        "Emissions|CO2|Energy|Demand|Transportation|Buses/Trucks",
-        "Emissions|CO2|Energy|Demand|Transportation|Cars",
-        "Emissions|CO2|Energy|Demand|Transportation|Off-road",
-        "Emissions|CO2|Energy|Demand|Transportation|Ships",
+    ], 
+     "Emissions|CO2|Energy|Supply|Electricity": [
+        "Emissions|CO2|Energy|Supply|Electricity|Coal",
+        "Emissions|CO2|Energy|Supply|Electricity|Gas",
+        "Emissions|CO2|Energy|Supply|Electricity|Oil",
     ],
 }
 
@@ -2526,13 +2516,14 @@ step5f_dict3 = {
         "Emissions|CO2|Energy|Demand|Residential and Commercial|Gases",
     ],
 
-    "Emissions|CO2|Energy|Supply|Electricity EXCL BECCS": [
-        "Emissions|CO2|Energy|Supply|Electricity|Coal",
-        "Emissions|CO2|Energy|Supply|Electricity|Gas",
-        "Emissions|CO2|Energy|Supply|Electricity|Oil",
-    ],
-
 }
+
+stepf5f_var_to_harmonise = [
+        'Emissions|CO2|Energy|Demand|Transportation',
+        'Emissions|CO2|Energy|Demand|Industry',
+        'Emissions|CO2|Energy|Demand|Residential and Commercial',
+        'Emissions|CO2|Energy|Supply|Electricity'
+    ]
 
 # Applies to df_iam
 step5f_temp_vars_dict_df_iam={"Emissions|CO2|Energy EXCL BECCS": {"Emissions|CO2|Energy":1,
