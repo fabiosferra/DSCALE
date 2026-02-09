@@ -322,6 +322,49 @@ def main(
         keep_step5_emissions,
     )
 
+    # ── Post-harmonisation: enforce FE|Electricity ≤ SE|Electricity ──────────
+    # FE and SE|Electricity are ratio-harmonised independently to IEA historical
+    # data in the loop above.  The correction factors can differ because FE and SE
+    # were downscaled with different methods (Steps 1 vs 2), which for some
+    # countries pushes harmonised FE above SE — an unphysical result.
+    # Clip FE down to SE wherever that happens, and proportionally scale down
+    # sector-level FE|...|Electricity to maintain consistency.
+    # _fe_var = "Final Energy|Electricity"
+    # _se_var = "Secondary Energy|Electricity"
+    # _vars_present = df_merged.index.get_level_values("VARIABLE").unique()
+    # if _fe_var in _vars_present and _se_var in _vars_present:
+    #     _fe_mask = df_merged.index.get_level_values("VARIABLE") == _fe_var
+    #     _se_mask = df_merged.index.get_level_values("VARIABLE") == _se_var
+    #     _fe      = df_merged.loc[_fe_mask].copy()
+    #     # Rename SE VARIABLE → FE so the two align for element-wise clip
+    #     _se      = df_merged.loc[_se_mask].rename(
+    #                    index={_se_var: _fe_var}, level="VARIABLE")
+    #     _fe_clipped = _fe.clip(upper=_se)
+    #     _n_clipped  = int((_fe_clipped != _fe).any(axis=1).sum())
+    #     if _n_clipped:
+    #         print(f"  ⚠  FE|Electricity clipped to ≤ SE|Electricity "
+    #               f"for {_n_clipped} region(s)")
+    #         df_merged.loc[_fe_mask] = _fe_clipped
+
+    #         # Proportionally scale down sector-level FE|Electricity variables
+    #         _scaling_factor = _fe_clipped / _fe.replace(0, 1.0)  # avoid division by zero
+    #         _sector_vars = [
+    #             "Final Energy|Industry|Electricity",
+    #             "Final Energy|Residential and Commercial|Electricity",
+    #             "Final Energy|Transportation|Electricity"
+    #         ]
+    #         for _sector_var in _sector_vars:
+    #             if _sector_var not in _vars_present:
+    #                 continue
+    #             _sector_mask = df_merged.index.get_level_values("VARIABLE") == _sector_var
+    #             _sector_data = df_merged.loc[_sector_mask].copy()
+    #             # Rename scaling factor's VARIABLE index to match this sector
+    #             _scale_renamed = _scaling_factor.rename(
+    #                                  index={_fe_var: _sector_var}, level="VARIABLE")
+    #             _sector_data, _scale_renamed = _sector_data.align(_scale_renamed, join='inner')
+    #             _sector_scaled = _sector_data * _scale_renamed
+    #             df_merged.loc[_sector_mask] = _sector_scaled
+
     # If `x` is not present in the downscaled results, we calculate it as the sum of sub-sectors using the dictionary `main_emi_sectors`
     
     # df_merged=fun_keep_selected_step5b_emi_variables(keep_step5_emissions, 
