@@ -22,6 +22,7 @@ from downscaler import (
     Step_5d_aggregated_regions_5d,
     Step_5e_historical_harmo,
     Step_5g_synfuels,
+    Step_5f_emissions, 
     visualization_6,
 )
 from downscaler.input_caching import get_selection_dict
@@ -102,6 +103,7 @@ def main(
     step5g=False,  # (optional) Synfuels calculation
     step4=False,  # (optional)
     step5e_after_policy=False,
+    step5f=False, # (optional) Emissions data
     step6=False,
     default_ssp_scenario="SSP2",
     gdp_model="NGFS",
@@ -693,8 +695,17 @@ def main(
             keep_step5_emissions=keep_step5_emissions,
         )
 
-        # file_visual = f"_NGFS_{file_suffix}_2019_harmo_step5e_None.csv"
     
+    if step5f: 
+        Step_5f_emissions.main(
+            project=project_folder,
+            csv_in = file_suffix, 
+            step="step5",
+            models=list_of_models,  
+            scenarios=list_of_targets,
+            harm_year = harmonize_eea_data_until,
+        )
+
     if step6:
         # By default we try to run the visualizations using the results WITH POLICY
         file_visual = f"_{project_folder}_{file_suffix}_{harmonize_eea_data_until}_harmo_step5e_WITH_POLICY_None.csv"

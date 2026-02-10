@@ -8,10 +8,10 @@ from downscaler.fixtures import iea_countries, check_IEA_countries
 # NOTE: Change dictionary below as appropriate
 d= {
     'config_file_name':'REMIND_fuel_mix_testing/config.yaml', # Add path to the `config.yaml` file
-    'list_of_models': ['*'], # Run only the MESSAGE model
-    'list_of_regions': ['BRA'], # Run all regions
+    'list_of_models': ['REMIND 3.4'], # Run only the MESSAGE model
+    'list_of_regions': ['AUS'], # Run all regions
     'list_of_targets':["NPE-core"],# Run all scenarios 
-    'file_suffix':'fuel_mix_testing_30012026', # Suffix of your file name (should contain a date)
+    'file_suffix':'10_02_2026', # Suffix of your file name (should contain a date)
     'n_jobs':3, # Run of CPUs for job parallelization - usually 6 is the max for Fabio
     "coerce_errors":True # Runs
 }
@@ -23,6 +23,8 @@ steps=[
     'step5c_tris','step5d', 'step5e',
     'step4',
     'step5e_after_policy',
+    'step5g',
+    'step5f',
     'step6'
 ]
 
