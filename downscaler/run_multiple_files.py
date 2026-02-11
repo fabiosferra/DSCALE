@@ -117,8 +117,9 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 if __name__ == "__main__":
     main_with_yaml_config(
         config_file_name="REMIND_fuel_mix_testing/config.yaml", # NGFS 2024 not working
+        file_suffix = "10_02_2026", 
         list_of_models=["REMIND 3.4"], # To run step5f, we need the exact name atm
-        list_of_regions=["AUS"], 
+        list_of_regions=["*"], 
         list_of_targets=["NPE-core"], # To run step5f, we need the exact name atm
         # run_sensitivity=True, # to make step1b graphs (log-log)
         # n_sectors=1, # Can be a number or a list of sectors
@@ -143,8 +144,9 @@ if __name__ == "__main__":
         step5d=False,  # eu27 and aggregate results from multiple files
         step5e=False,  # harmonize with historical data
         step5g=False,  # synfuels calculation (auto-detects regions with data)
+        # step5h=False, # compute SE|Elec|Hydrogen
         step4=False,
-        # step5e_after_policy=False,
-        # step5f=False, # emissions data 
+        step5e_after_policy=False,
+        step5f=False, # emissions data 
         step6=False,
     )

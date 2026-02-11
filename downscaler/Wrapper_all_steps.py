@@ -23,6 +23,7 @@ from downscaler import (
     Step_5e_historical_harmo,
     Step_5g_synfuels,
     Step_5f_emissions, 
+    Step_5h_SE_Hydrogen, 
     visualization_6,
 )
 from downscaler.input_caching import get_selection_dict
@@ -104,6 +105,7 @@ def main(
     step4=False,  # (optional)
     step5e_after_policy=False,
     step5f=False, # (optional) Emissions data
+    step5h=False,
     step6=False,
     default_ssp_scenario="SSP2",
     gdp_model="NGFS",
@@ -638,6 +640,15 @@ def main(
             list_of_targets=list(targets),
             list_of_models=list(models),
             harmonisation_date=harmonize_eea_data_until,
+        )
+
+    if step5h:
+        Step_5h_SE_Hydrogen.main(
+            project_folder=project_folder,
+            file_suffix=file_suffix,
+            list_of_targets=list(targets),
+            list_of_models=list(models),
+            harmonisation_date=2022,
         )
 
     sens_list = [""]
