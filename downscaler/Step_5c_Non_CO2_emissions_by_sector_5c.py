@@ -26,7 +26,11 @@ def main(
     region_patterns: list,
     target_patterns: list,
     model_in_region_name: bool = False,
+    file_suffix: str = "",
 ):
+    # Use nested directory structure
+    global RESULTS_DATA_DIR
+    RESULTS_DATA_DIR = CONSTANTS.NESTED_RES_DIR("step5", project_file, file_suffix)
 
     # Get non co2 data from Gains in (MtCo2e/yr)
     df_non_co2_gains = fun_load_non_co2(
@@ -132,7 +136,7 @@ def main(
             df_all = pd.concat(
                 list(res_dict.values()), axis=0
             )  # pd.concat([res_dict[x] for x in regions], axis=0)
-            df_all.to_csv(RESULTS_DATA_DIR / f"{model}_{project_file}_non_co2.csv")
+            df_all.to_csv(RESULTS_DATA_DIR / f"{model}_non_co2.csv")
     print("Step 5c done")
     return df_res
 

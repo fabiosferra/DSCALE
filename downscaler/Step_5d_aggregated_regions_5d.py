@@ -41,11 +41,9 @@ def main(
     pd.DataFrame
         Dataframe with aggregated data
     """
-    CURR_RES_DIR = CONSTANTS.CURR_RES_DIR("step5")
-    if callable(CONSTANTS.RES_DIR):
-        RESULTS_DATA_DIR = CONSTANTS.RES_DIR(str(Path(os.path.abspath("")) / "step5"))
-    else:
-        RESULTS_DATA_DIR = CURR_RES_DIR
+    # Use nested directory structure
+    CURR_RES_DIR = CONSTANTS.NESTED_RES_DIR("step5", project, csv_suffix)
+    RESULTS_DATA_DIR = CURR_RES_DIR
 
     if callable(CONSTANTS.INPUT_DATA_DIR):
         datadir = Path(CONSTANTS.INPUT_DATA_DIR()) / project / "multiple_df"
@@ -57,12 +55,12 @@ def main(
     # Creating list of files
     files = {
         m: [
-            f"{m}_{csv_suffix}.csv",
-            f"{m}_{csv_suffix}_Emissions_by_sectors_and_revenues.csv",
-            f"{project}/{m}_AFOLU_emissions.csv",
+            f"{m}.csv",
+            f"{m}_Emissions_by_sectors_and_revenues.csv",
+            f"{m}_AFOLU_emissions.csv",
             # NOTE: Exclude non-co2 by gases, as total non-co2 is now included in '_imports.csv' file
-            f"{m}_{project}_non_co2.csv",
-            f"{m}_{project}_imports.csv",
+            f"{m}_non_co2.csv",
+            f"{m}_imports.csv",
         ]
         for m in models
     }
@@ -183,7 +181,7 @@ def main(
             ["MODEL", "SCENARIO", "REGION", "VARIABLE", "UNIT"]
         )
         df_all.to_csv(
-            f"{RESULTS_DATA_DIR}/{model}_{project}_Step5d.csv", encoding="utf-8-sig"
+            f"{RESULTS_DATA_DIR}/{model}_Step5d.csv", encoding="utf-8-sig"
         )
         df_all_models = pd.concat([df_all_models, df_all], axis=0, sort=True)
     print("step 5d done")

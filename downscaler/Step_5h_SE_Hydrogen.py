@@ -100,7 +100,8 @@ def main(
     # Read IAM data
     df_iam = fun_read_df_iams(project)
     df_iam = fun_index_names(df_iam, True, int)
-    mydir = CONSTANTS.CURR_RES_DIR('step5')
+    # Use nested directory structure
+    mydir = CONSTANTS.NESTED_RES_DIR('step5', project_folder, file_suffix)
 
     # Get models
     models_all = fun_get_models(project)
@@ -115,7 +116,7 @@ def main(
     # Determine input file
     if input_file is None:
         # Find the step5e output file matching pattern
-        pattern = f"_{project_folder}_{file_suffix}_{harmonisation_date}_harmo_step5g_synfuel.csv"
+        pattern = f"_{harmonisation_date}_harmo_step5g_synfuel.csv"
         step5_files = [x for x in os.listdir(mydir) if pattern in x]
         if not step5_files:
             raise FileNotFoundError(
@@ -238,7 +239,7 @@ def main(
             df = pd.concat([df.drop(common_variables), updated_results])
 
     # Save results
-    output_file = f"{model}_{project_folder}_{file_suffix}_{harmonisation_date}_harmo_step5h_hydrogen.csv"
+    output_file = f"{model}_{harmonisation_date}_harmo_step5h_hydrogen.csv"
     output_path = mydir / output_file
     df.to_csv(output_path)
     logging.info(f"Results saved to {output_path}")

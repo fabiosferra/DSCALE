@@ -93,7 +93,9 @@ def main(
         Base year for IEA historical harmonization (default 2020).
     """
     files=None
-    csv_out=f"Emissions_{project}_{csv_in}.csv"
+    csv_out=f"Emissions_{csv_in}.csv"
+    # Use nested directory structure
+    NESTED_DIR = CONSTANTS.NESTED_RES_DIR(step, project, csv_in)
 
     # =========================================================================
     # 1. DATA LOADING
@@ -108,7 +110,7 @@ def main(
     # Read NGFS full data (output of step5e: energy variables after historical harmonization)
     # i = project, step, files, None, models, f"{csv_in}_2022_harmo_step5e_None" # Careful about the harmonisation date!
     # df = fun_read_results(*i)[0]
-    df = pd.read_csv(f"results/5_Explorer_and_New_Variables/{models[0]}_{project}_{csv_in}_2022_harmo_step5e_None.csv")
+    df = pd.read_csv(NESTED_DIR / f"{models[0]}_{harm_year}_harmo_step5e_None.csv")
     df = fun_index_names(df, True, int)
 
     # Read sectorial CO2 emissions (from step5b: emissions downscaled by sector)
@@ -119,7 +121,7 @@ def main(
     # df_co2 = fun_read_results(*tuple(list(i)))[0]
     # d = {"VARIABLE": "Emissions|CO2|Industrial Processes"}
     # df_co2 = fun_xs(df_co2, d, exclude_vars=True)
-    df_co2 = pd.read_csv(f"results/5_Explorer_and_New_Variables/{models[0]}_{csv_in}_Emissions_by_sectors_and_revenues.csv")
+    df_co2 = pd.read_csv(NESTED_DIR / f"{models[0]}_Emissions_by_sectors_and_revenues.csv")
     df_co2 = fun_index_names(df_co2, True, int)
     d = {"VARIABLE": "Emissions|CO2|Industrial Processes"} # Excluded here because it's recreated later
     df_co2 = fun_xs(df_co2, d, exclude_vars=True)
@@ -133,7 +135,7 @@ def main(
     i = project, step, files, None, models, "non"
     # non_co2 = fun_read_results(*tuple(list(i)))[0]#.dropna(how="all")
     # df = pd.concat([df, non_co2.droplevel("REGION")])
-    non_co2 = pd.read_csv(f"results/5_Explorer_and_New_Variables/{models[0]}_{project}_non_co2.csv")
+    non_co2 = pd.read_csv(NESTED_DIR / f"{models[0]}_non_co2.csv")
     non_co2 = fun_index_names(non_co2, True, int)
     df = pd.concat([df, non_co2.droplevel("REGION")])
 
@@ -452,7 +454,7 @@ def main(
     # Save pre-harmonization (Stage 2 only) results for comparison
     df_pre_harmo = pd.concat(list(res_pre_harmo.values()))
     df_pre_harmo = fun_index_names(df_pre_harmo, True, int)
-    pre_harmo_path = CONSTANTS.CURR_RES_DIR(step) / csv_out.replace(".csv", "_pre_iea_harmo.csv")
+    pre_harmo_path = NESTED_DIR / csv_out.replace(".csv", "_pre_iea_harmo.csv")
     df_pre_harmo.to_csv(pre_harmo_path)
     print(f"Saved pre-IEA-harmonization results to {pre_harmo_path}")
 
@@ -563,7 +565,7 @@ def main(
     df = df.sort_index()
 
     # Save final CSV
-    df.to_csv(CONSTANTS.CURR_RES_DIR(step) / csv_out)
+    df.to_csv(NESTED_DIR / csv_out)
 
     return df
 

@@ -39,11 +39,11 @@ def main(
     add_revenues:bool=True,
     save_to_excel: bool = True,
     input_arguments: Union[dict, None] = None,
+    file_suffix: str = "",
 ):
 
-    RESULTS_DATA_DIR = CONSTANTS.CURR_RES_DIR(
-        str(Path(os.path.abspath("")) / Path(__file__).name)
-    )
+    # Use nested directory structure: .../5_Explorer_and_New_Variables/{project}/{suffix}/
+    RESULTS_DATA_DIR = CONSTANTS.NESTED_RES_DIR("step5", project_file, file_suffix)
 
     (
         selection_dict,

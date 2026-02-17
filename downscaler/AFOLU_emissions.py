@@ -45,6 +45,7 @@ def main(
     save_to_csv: bool = True,
     grassi_dynamic: bool = False,
     grassi_scen_mapping=None,
+    file_suffix: str = "",
     # {
     #         "SSP2 1.9": ["d_delfrag", "o_1p5c", "o_lowdem"],
     #         "SSP2 2.6": ["d_strain", "o_2c"],
@@ -122,7 +123,8 @@ def main(
     if indirect_emi_average is None:
         indirect_emi_average = range(2010, 2021)
 
-    (RESULTS_DATA_DIR / folder).mkdir(exist_ok=True)
+    # Use nested directory structure
+    NESTED_DIR = CONSTANTS.NESTED_RES_DIR("step5", folder, file_suffix)
 
     if agg_region is not None:
         if grassi_dynamic:
@@ -162,7 +164,7 @@ def main(
         )
         if save_to_csv:
             df.drop("hist inventories", level="MODEL", axis=0).to_csv(
-                f"{RESULTS_DATA_DIR}/{folder}/{model}_AFOLU_emissions.csv"
+                f"{NESTED_DIR}/{model}_AFOLU_emissions.csv"
             )
     else:
         # if indirect_emi_average is not None:
@@ -188,7 +190,7 @@ def main(
         )
         if save_to_csv: # we save results in the wrapper_all_steps.py
             df.drop("hist inventories", level="MODEL", axis=0).to_csv(
-                f"{RESULTS_DATA_DIR}/{folder}/{model}_AFOLU_emissions.csv"
+                f"{NESTED_DIR}/{model}_AFOLU_emissions.csv"
             )
         print(f"downscaling afolu for {model} {marker_region} done")
     return df

@@ -112,6 +112,27 @@ class constants:
         self.check_for_file(fname)
         return self.RES_DIR / self.RESULT_FOLDER_MAPPING[fname]["folder"]
 
+    def NESTED_RES_DIR(self, fname: str, project_folder: str, file_suffix: str) -> Path:
+        """Returns a nested results directory: CURR_RES_DIR / project_folder / file_suffix
+
+        Parameters
+        ----------
+        fname : str
+            Step name or filename (e.g. 'step5')
+        project_folder : str
+            Project folder name (e.g. 'REMIND_fuel_mix_testing')
+        file_suffix : str
+            File suffix / date string (e.g. '17_02_2026')
+
+        Returns
+        -------
+        Path
+            Nested path for organized output
+        """
+        nested = self.CURR_RES_DIR(fname) / project_folder / file_suffix
+        nested.mkdir(parents=True, exist_ok=True)
+        return nested
+
     def PREV_RES_DIR(self, fname: str) -> Union[Path, None]:
         """Returns the result dictionary for the previous step
 

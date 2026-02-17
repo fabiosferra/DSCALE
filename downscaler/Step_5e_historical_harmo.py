@@ -115,6 +115,7 @@ def main(
     #                       'Emissions|CO2|Energy|Demand|Residential and Commercial',
     #                       'Emissions|CO2|Energy|Demand|Transportation'
     #                       ]
+    file_suffix: str = "",
 ) -> pd.DataFrame:  # -> pd.DataFrame:
 
     """This function:
@@ -142,7 +143,9 @@ def main(
 
     print("Running step5e...")
 
-    CURR_RES_DIR = CONSTANTS.CURR_RES_DIR("step5")
+    # Use nested directory structure
+    _project_folder = list(models_dict.keys())[0]
+    CURR_RES_DIR = CONSTANTS.NESTED_RES_DIR("step5", _project_folder, file_suffix)
     idx_col = [
         "MODEL",
         "SCENARIO",
@@ -191,7 +194,7 @@ def main(
 
             for file in files:
                 for project in fun_invert_dictionary(models_dict)[model]:
-                    suf = f"{model}_{project}_{file}"
+                    suf = f"{model}_{file}"
                     # read from step5 folder
                     file_path = f"{CURR_RES_DIR}/{suf}"
                     # NOTE If file_path does not exists then try to read from input_data (native IAMs results)
@@ -241,13 +244,13 @@ def main(
                             action = input(txt)
                             if action.lower() in ["yes", "y"]:
                                 current_file.to_csv(
-                                    f"{CURR_RES_DIR}/{model}_{project}_{file}"
+                                    f"{CURR_RES_DIR}/{model}_{file}"
                                 )
                         # current_file["FILE"]=f"{project}_{file}"
                         current_file["FILE"] = file_path.split("/")[-1]
                         df = pd.concat([df, current_file], axis=0, sort=True)
                     else:
-                        print(f"{model}_{project}_{file} does not exists")
+                        print(f"{model}_{file} does not exists")
             if (
                 "MODEL" in df.reset_index().columns
                 and model not in df.reset_index().MODEL.unique()
@@ -446,7 +449,7 @@ def main(
 
         file_tocsv = (
             CURR_RES_DIR
-            / f"{csv_file_name}_{harmonize_eea_data_until}_{harmo_str}_step5e"
+            / f"{harmonize_eea_data_until}_{harmo_str}_step5e"
         )
         # NOTE The below is for all projects except for the 'EU_climate_advisory_board'
         if not len([x for x in models_dict.keys() if "EU_climate_advisory_board" in x]):
@@ -497,7 +500,7 @@ def main(
                 # We put the model name as prefix -> f"{MODEL}_csv_file_name"
                 file_tocsv = (
                     CURR_RES_DIR
-                    / f"{models[0]}_{csv_file_name}_{harmonize_eea_data_until}_{harmo_str}_step5e"
+                    / f"{models[0]}_{harmonize_eea_data_until}_{harmo_str}_step5e"
                 )
                 if read_from_step4:
                     file_tocsv = f"{file_tocsv}_WITH_POLICY"
@@ -569,7 +572,7 @@ def main(
 
             # Dump yaml file with downscaling units
             myunits = fun_get_variable_unit_dictionary(df_csv)
-            f = open(CONSTANTS.CURR_RES_DIR("step5") / "downscaling_units.yaml", "w+")
+            f = open(CURR_RES_DIR / "downscaling_units.yaml", "w+")
             yaml.dump(myunits, f, allow_unicode=True)
 
             # models = df.reset_index().MODEL.unique()
@@ -667,7 +670,7 @@ def main(
         selcols.sort()
 
     if create_dashboard:
-        dashboard_dir = CONSTANTS.CURR_RES_DIR("step5") / "Step_5e_dashboard"
+        dashboard_dir = CURR_RES_DIR / "Step_5e_dashboard"
         for x in ["selected C1 scenarios", "selected C1 scenarios + eu targets"]:
             if "Gross Emissions|CO2" in res[x].reset_index().VARIABLE.unique():
                 res[x] = res[x].drop("Gross Emissions|CO2", level="VARIABLE")

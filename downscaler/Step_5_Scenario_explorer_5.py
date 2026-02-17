@@ -91,7 +91,7 @@ def main(
         input_file,
         pyam_mapping_file,
         df_iam_all_models,
-        RESULTS_DATA_DIR,
+        _RESULTS_DATA_DIR,
         PREV_STEP_RES_DIR,
         df_ssp,
         selection_dict,
@@ -104,6 +104,8 @@ def main(
         add_twn,
         get_selection_dict,
     )
+    # Use nested directory structure: .../5_Explorer_and_New_Variables/{project}/{suffix}/
+    RESULTS_DATA_DIR = CONSTANTS.NESTED_RES_DIR("step5", project_name, csv_str)
 
     ## Read GDP and POP data from Step3
     # csv_suffix = f"results/3_CCS_and_Emissions/GDP_{csv_str}_updated_gdp.csv"
@@ -276,10 +278,8 @@ def main(
             ## SAVE CSV FILE IN EXPLORER FOLDER
             ## 1) INCLUDING ALL COUNTRIES
             folder = RESULTS_DATA_DIR
-            csv_suffix = csv_suffix.replace(suf, "")
-            path_to_file = folder / (csv_suffix)  ## Downloadable version
-            # NOTE - can use the below
-            # path_to_file= Path(RESULTS_DATA_DIR/project_name/csv_suffix.replace(f'{model}_','').replace('.csv','')/f'{model}.csv')
+            csv_suffix_write = csv_suffix.replace(suf, "").replace(f"_{csv_str}", "")
+            path_to_file = folder / (csv_suffix_write)  ## Downloadable version
 
             # Nomenclature primary energy:
             # IAM results contain the Non-Biomass Renewables nomenclature:
@@ -338,7 +338,7 @@ def main(
 
             ## Below Saving version for explorer (with D.ISO for downscaled variables, and standard model name (instead of model+'_downscale') for model)
             df = fun_explorer_file(model, df, regions, df_countries)
-            path_to_file = folder / ("Explorer_" + csv_suffix)
+            path_to_file = folder / ("Explorer_" + csv_suffix_write)
 
             if run_sensitivity:
                 path_to_file = str(path_to_file).replace(".csv", f"{suf}.csv")

@@ -58,6 +58,9 @@ def main(
     file_suffix: str,
     model_in_region_name: bool = False,
 ):
+    # Use nested directory structure
+    global RESULTS_DATA_DIR
+    RESULTS_DATA_DIR = CONSTANTS.NESTED_RES_DIR("step5", project_file, file_suffix)
 
     input_file = CONSTANTS.INPUT_DATA_DIR / project_file / "snapshot_all_regions.csv"
     pyam_mapping_file = CONSTANTS.INPUT_DATA_DIR / project_file / "default_mapping.csv"
@@ -102,12 +105,12 @@ def main(
     # fun_harmonize_hist_data_by_preserving_sum_across_countries(aa, myiea, 'Final Energy', tc=2240)
     for model in models:
         df_iam = fun_read_df_iam_iamc(input_file)
-        filename = CONSTANTS.CURR_RES_DIR("step5") / f"{model}_{file_suffix}.csv"
+        filename = RESULTS_DATA_DIR / f"{model}.csv"
         if not os.path.exists(filename):
             raise ValueError(f"Cannot find {filename}")
         # Load Energy and non-co2 data below
-        mf = CONSTANTS.CURR_RES_DIR("step5") / f"{model}"
-        files = [f"{mf}_{x}" for x in [f"{file_suffix}", f"{project_file}_non_co2"]]
+        mf = RESULTS_DATA_DIR / f"{model}"
+        files = [f"{mf}", f"{mf}_non_co2"]
         df = pd.DataFrame()
         for f in files:
             temp = pd.read_csv(f"{f}.csv")
@@ -207,7 +210,7 @@ def main(
                             trade_all_final=trade   
                         df_res = pd.concat([df_res, trade_all_final], axis=0)
                     
-        df_res.to_csv(RESULTS_DATA_DIR / f"{model}_{project_file}_imports.csv")
+        df_res.to_csv(RESULTS_DATA_DIR / f"{model}_imports.csv")
     print("Step 5c bis (Trade variables) done")
     return df_res
 

@@ -522,12 +522,13 @@ def main(
             list_of_models,
             list_of_regions,
             list_of_targets,
-            f"MODEL_{file_suffix}{sens_suf}{step5b_suffix}.csv",
+            f"MODEL{sens_suf}{step5b_suffix}.csv",
             "_Emissions_by_sectors_and_revenues",  # if empty string it appends data to existing csv file. Otherwise it creates a new file. CAREFUL: we always have two datasets for each model 'Explorer_Model...csv' and 'Model...csv'!
             model_in_region_name,
             add_only_revenues=True,  # exclude sectorial emissions
             add_revenues=True, #add_only_revenues,
             input_arguments=inpt_arg,
+            file_suffix=file_suffix,
             # run_sensitivity=run_sensitivity_from_step2_to_5,
         )
         file_visual = f"_{file_suffix}_FINAL.csv"
@@ -542,6 +543,7 @@ def main(
             list_of_regions,
             list_of_targets,
             model_in_region_name,
+            file_suffix=file_suffix,
         )
 
     if step5c_bis:
@@ -590,12 +592,12 @@ def main(
                     show_plots=False,
                     ylim=(-800, 800),
                     save_to_csv=False,
+                    file_suffix=file_suffix,
                 )
                 for region in afolu_regions
             }
-            # Save to csv
-            afolu_folder = CONSTANTS.CURR_RES_DIR("step5") / project_folder
-            (afolu_folder).mkdir(exist_ok=True)
+            # Save to csv (nested dir structure)
+            afolu_folder = CONSTANTS.NESTED_RES_DIR("step5", project_folder, file_suffix)
             pd.concat(list(res_afolu.values()), axis=0).drop(
                 "hist inventories", level="MODEL", axis=0
             ).to_csv(f"{afolu_folder}/{model}_AFOLU_emissions.csv")
@@ -633,6 +635,7 @@ def main(
             show_plots=False,
             known_issues=known_issues,
             keep_step5_emissions=keep_step5_emissions,
+            file_suffix=file_suffix,
             # aggregate_non_iea_countries=True,
             # aggregate_eu_27=True,
         )
@@ -708,6 +711,7 @@ def main(
             # aggregate_non_iea_countries=aggregate_non_iea_countries,
             aggregate_eu_27=True,
             keep_step5_emissions=keep_step5_emissions,
+            file_suffix=file_suffix,
         )
 
     
@@ -730,9 +734,10 @@ def main(
 
     if step6:
         # By default we try to run the visualizations using the results WITH POLICY
-        file_visual = f"_{project_folder}_{file_suffix}_{harmonize_eea_data_until}_harmo_step5e_WITH_POLICY_None.csv"
+        file_visual = f"_{harmonize_eea_data_until}_harmo_step5e_WITH_POLICY_None.csv"
+        nested_step5_dir = CONSTANTS.NESTED_RES_DIR("step5", project_folder, file_suffix)
         step5_files = [
-            x for x in os.listdir(CONSTANTS.CURR_RES_DIR("step5")) if file_visual in x
+            x for x in os.listdir(nested_step5_dir) if file_visual in x
         ]
         # If results WITH POLICY are not found, we ask the user if wants to plot the data WITHOUT POLICY
         if not len(step5_files):
@@ -742,7 +747,7 @@ def main(
             )
             action = input(txt)
             if action.lower() in ["yes", "y"]:
-                file_visual = f"_{project_folder}_{file_suffix}_{harmonize_eea_data_until}_harmo_step5e_None.csv"
+                file_visual = f"_{harmonize_eea_data_until}_harmo_step5e_None.csv"
             else:
                 raise ValueError(f"Simulation aborted by the user: {action}")
 
