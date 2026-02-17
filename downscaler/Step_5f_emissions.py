@@ -126,6 +126,8 @@ def main(
 
     # Append sectorial CO2 emissions to the main dataframe
     df = pd.concat([df, df_co2], axis=0)
+    # Drop duplicate index rows (same variable in step5e and step5b), keeping step5e values
+    df = df[~df.index.duplicated(keep='first')]
 
     # Append non-CO2 greenhouse gases (from step5c: CH4, N2O, F-gases, etc.)
     i = project, step, files, None, models, "non"
@@ -196,6 +198,10 @@ def main(
     if countrylist is not None:
         df = fun_xs(df, {"REGION": countrylist})
 
+    # Expand wildcard scenario patterns against what's actually in the data
+    avscenarios = list(df.index.get_level_values("SCENARIO").unique())
+    scenarios = fun_wildcard(scenarios, avscenarios)
+
     # Slice for selected scenarios only
     df = fun_xs(df, {"SCENARIO": scenarios})
 
@@ -229,9 +235,10 @@ def main(
                         df1[t] = np.abs(df1[t]) # apply absolute value
                         res[f"{r,scen,variable}"] = df1
 
-    df_update=pd.concat(list(res.values())) # Get Updated results after negative values correction
-    df_update=fun_index_names(df_update, True, int)
-    df=pd.concat([df.drop(df_update.index), df_update]) # Update df with corrected values
+    if res:
+        df_update=pd.concat(list(res.values())) # Get Updated results after negative values correction
+        df_update=fun_index_names(df_update, True, int)
+        df=pd.concat([df.drop(df_update.index), df_update]) # Update df with corrected values
 
     # =========================================================================
     # 5. LOAD IEA HISTORICAL EMISSIONS (for Stage 3)
@@ -276,10 +283,10 @@ def main(
     res={}
     res_pre_harmo={}  # Stage 2 results BEFORE IEA historical fit (for comparison)
     ds=[step5f_dict1, step5f_dict2, step5f_dict3]
-    for r,countrylist in regmap.items():
+    for r,region_countries in regmap.items():
         for scen in scenarios:
             print('Harmonzing', model, r, scen)
-            df1=fun_xs(df, {'SCENARIO':scen, 'REGION':countrylist}) # df
+            df1=fun_xs(df, {'SCENARIO':scen, 'REGION':region_countries}) # df
             df2=fun_rename_index_name(fun_xs(df_iam, {'REGION':f"{model}|{r[:-1]}", 'SCENARIO':scen}).drop(2005, axis=1), {'SCENARIO':'TARGET'}) # df_iam
 
             # ---- STAGE 2: Sectorial harmonization ----
@@ -564,9 +571,10 @@ def main(
 if __name__ == "__main__":
     main(
         project="REMIND_fuel_mix_testing",
-        csv_in = '10_02_2026', 
+        csv_in = '17_02_2026', 
         step="step5",
-        models=['REMIND 3.4'],
-        scenarios=["NPE-core"],
+        models=['REMIND *'],
+        scenarios=["NPE-*"],
         harm_year = 2022,
+        countrylist= None
               )

@@ -163,6 +163,10 @@ def main(
         CONSTANTS.INPUT_DATA_DIR / project_folder / "default_mapping.csv"
     )
     
+    # Save original list_of_regions before it gets converted to IAM region patterns
+    # (used later to pass countrylist to step5f)
+    _original_list_of_regions = list(list_of_regions)
+
     try:
         # Get models based on `list_of_models`
         f = fun_wildcard
@@ -170,7 +174,7 @@ def main(
         models=list_of_models
         models_all = fun_get_models(project) if project else None
         models = f(list_of_models, models_all)
-        
+
 
         # We check wheter to interpret `list_of_regions` as IAMs regions or ISO code:
         is_region=len([x for x in list_of_regions if x not in all_countries])>0
@@ -707,14 +711,21 @@ def main(
         )
 
     
-    if step5f: 
+    if step5f:
+        # Pass countrylist to step5f when running with a subset of ISO countries.
+        # If list_of_regions is ["*"] or IAM region names, run on all countries.
+        _is_iso_subset = (
+            _original_list_of_regions != ["*"]
+            and all(r in all_countries for r in _original_list_of_regions)
+        )
         Step_5f_emissions.main(
             project=project_folder,
-            csv_in = file_suffix, 
+            csv_in = file_suffix,
             step="step5",
-            models=list_of_models,  
+            models=list_of_models,
             scenarios=list_of_targets,
             harm_year = harmonize_eea_data_until,
+            countrylist=_original_list_of_regions if _is_iso_subset else None,
         )
 
     if step6:
