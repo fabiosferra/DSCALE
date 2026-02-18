@@ -152,7 +152,7 @@ def main(
         total_var: [
             'Secondary Energy|Electricity|Biomass',
             'Secondary Energy|Electricity|Coal',
-            'Secondary Energy|Electricity|Natural Gas',
+            'Secondary Energy|Electricity|Gas',
             'Secondary Energy|Electricity|Oil',
             'Secondary Energy|Electricity|Nuclear',
             'Secondary Energy|Electricity|Solar',
