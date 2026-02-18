@@ -16182,6 +16182,7 @@ def fun_add_variables_and_harmonize(
     iea_flow_dict,
     iea_var_dict,
     keep_step5_emissions,
+    small_var_threshold: float = 0.1,
 ):
     df = fun_add_secondary_energy(df)
 
@@ -16302,6 +16303,7 @@ def fun_add_variables_and_harmonize(
                     constant_offset_vars,
                     var,
                     iea_var_dict,
+                    small_var_threshold=small_var_threshold,
                 )
             else:
                 print(f'{var} NOT HARMONISED -> NOT AVAILABLE IN DF_MERGED')
@@ -16464,6 +16466,7 @@ def fun_add_variables_and_harmonize(
                     unit="EJ/yr",
                     # dropna=False
                 )
+                # NEIL: Issue here is that the sub-sectors are really small
 
     recalc_vars = {
         "Secondary Energy|Electricity|Trade": {
@@ -16767,6 +16770,23 @@ def fun_create_var_as_sum_only_for_models_where_missing(
     return df_all
 
 
+def _get_parent_variable(var: str):
+    """Derive the parent variable name by stripping the last |‑delimited segment.
+
+    Returns None if the variable is top-level (no | separator).
+
+    Examples
+    --------
+    >>> _get_parent_variable("Secondary Energy|Electricity|Solar")
+    'Secondary Energy|Electricity'
+    >>> _get_parent_variable("Final Energy")
+    """
+    parts = var.split("|")
+    if len(parts) <= 1:
+        return None
+    return "|".join(parts[:-1])
+
+
 def fun_harmonize_hist_data_general(
     use_eea_data,
     use_iea_data_from_ed,
@@ -16776,6 +16796,7 @@ def fun_harmonize_hist_data_general(
     constant_offset_vars,
     var,
     iea_var_dict,
+    small_var_threshold: float = 0.1,
 ):
     if "mission" in var:
         if use_eea_data:
@@ -16815,14 +16836,77 @@ def fun_harmonize_hist_data_general(
     # Harmonize CO2 emissions
     conv = 2050 if var not in constant_offset_vars else None
     if len(hist_var):
+        # ── Per-country offset override for small sub-variables ──────────
+        # When using ratio harmonisation, check if the variable is small
+        # relative to its parent in the historical data.  For countries where
+        # abs(var) < small_var_threshold * abs(parent), use offset instead of
+        # ratio to avoid extreme scaling factors.
+        if method == "ratio":
+            parent_var = _get_parent_variable(var)
+            parent_hist = None
+            if parent_var is not None and parent_var in iea_data.index.get_level_values("VARIABLE").unique():
+                try:
+                    if use_iea_data_from_ed:
+                        parent_hist = iea_data.xs(parent_var, level="VARIABLE").droplevel(
+                            ["MODEL", "SCENARIO", "UNIT"]
+                        )
+                        if "World" in parent_hist.index:
+                            parent_hist = parent_hist.drop("World")
+                    else:
+                        parent_hist = fun_get_historical_emissions(
+                            parent_var, iea_data, iea_var_dict,
+                        )
+                except (KeyError, ValueError):
+                    parent_hist = None
+
+            if parent_hist is not None and len(parent_hist) > 0:
+                # Use the last available historical year for comparison
+                common_cols = sorted(set(hist_var.columns) & set(parent_hist.columns))
+                if common_cols:
+                    baseyear = max(common_cols)
+                    # Align indices (country names may differ between var and parent)
+                    common_countries = hist_var.index.intersection(parent_hist.index)
+                    if len(common_countries) > 0:
+                        var_vals = hist_var.loc[common_countries, baseyear].abs()
+                        parent_vals = parent_hist.loc[common_countries, baseyear].abs()
+                        # Countries where var is small relative to parent
+                        small_mask = var_vals < small_var_threshold * parent_vals
+                        offset_countries = small_mask[small_mask].index.tolist()
+
+                        if len(offset_countries) > 0:
+                            n_offset = len(offset_countries)
+                            n_total = len(common_countries)
+                            print(
+                                f"  NOTE: Using offset harmonisation for '{var}' in "
+                                f"{n_offset}/{n_total} countries "
+                                f"(< {small_var_threshold:.0%} of '{parent_var}' "
+                                f"in hist year {baseyear})"
+                            )
+                            # Split hist data: ratio countries vs offset countries
+                            hist_ratio = hist_var.loc[~hist_var.index.isin(offset_countries)]
+                            hist_offset = hist_var.loc[hist_var.index.isin(offset_countries)]
+
+                            # Harmonise ratio countries first (includes countries
+                            # not in common_countries — they keep ratio by default)
+                            if len(hist_ratio) > 0:
+                                df_merged = fun_harmonize_hist_data(
+                                    df_merged, var, conv, hist_ratio,
+                                    method="ratio", coerce_errors=True,
+                                )
+                            # Then harmonise offset countries
+                            df_merged = fun_harmonize_hist_data(
+                                df_merged, var, conv, hist_offset,
+                                method="offset", coerce_errors=True,
+                            )
+                            return df_merged
+        # ── End per-country offset override ──────────────────────────────
+
         df_merged = fun_harmonize_hist_data(
             df_merged,
             var,
             conv,
             hist_var,
             method=method,  # clip_positive=clip
-            # method="offset",  # TEMPORARY, JUST TO CHECK!!!!!!!!!!!
-            # clip_positive=clip,
             coerce_errors=True,
         )
     else:
