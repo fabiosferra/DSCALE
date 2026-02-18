@@ -176,7 +176,7 @@ def main(
 
             # Block below should do same as commented block below
             extra_units = {
-                "EJ/yr": ["Secondary Energy|Electricity|Trade"],
+                "EJ/yr": ["Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports"],
                 "Mt CO2/yr": [
                     "Emissions|CO2|LULUCF Direct+Indirect",
                     "Emissions|CO2|LULUCF Indirect",
@@ -480,7 +480,7 @@ def main(
             #     "Statistical Difference|Carbon Sequestration|CCS", level="VARIABLE"
             # )
             # df_merged = df_merged.drop(
-            #     "Statistical Difference|Secondary Energy|Electricity|Trade",
+            #     "Statistical Difference|Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports",
             #     level="VARIABLE",
             # )
 
@@ -490,7 +490,7 @@ def main(
             # )
             tobedropped=["Statistical Difference|Emissions|CO2|Energy and Industrial Processes",
                           "Statistical Difference|Carbon Sequestration|CCS",
-                          "Statistical Difference|Secondary Energy|Electricity|Trade"
+                          "Statistical Difference|Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports"
                          ]
 
             df_merged=fun_xs(df_merged, {"VARIABLE":tobedropped}, exclude_vars=True)

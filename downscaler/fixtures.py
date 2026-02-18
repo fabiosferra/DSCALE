@@ -2377,7 +2377,7 @@ timing_net_zero = {
 # NOTE In the dictionary below we omit some variables on purpose, so that they will be dropped at the beginning of step5e (e.g.  'Emissions|Kyoto Gases (incl. indirect AFOLU)' , 'Emissions|Total Non-CO2'), ... and the statistical variables].
 # Do not modify - if needed create a new  dictionary
 extra_units_dict = {
-    "EJ/yr": ["Secondary Energy|Electricity|Trade"],
+    "EJ/yr": ["Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports"],
     "Mt CO2/yr": [
         "Emissions|CO2|LULUCF Direct+Indirect",
         "Emissions|CO2|LULUCF Indirect",

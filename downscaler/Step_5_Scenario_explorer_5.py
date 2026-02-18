@@ -198,7 +198,7 @@ def main(
             ## Creating 'Secondary Energy|Eletricity|Trade' as the difference between Secondary and Final electricity (NO need to create a loop   (already applies to all scenario/regions))
             df = fun_create_variable_sum(
                 df,
-                _new_var_name="Secondary Energy|Electricity|Trade",
+                _new_var_name="Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports",
                 _models_list=[model + "_downscaled", model],
                 _add_var_list=["Secondary Energy|Electricity"],
                 _subtract_var_list=["Final Energy|Electricity"],

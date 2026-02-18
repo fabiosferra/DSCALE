@@ -13124,7 +13124,7 @@ def fun_rename_sector_and_region(df_harmo_all):
 
 def fun_no_trade_after_2060(df):
     index0 = (
-        fun_multindex(df, [("VARIABLE", "Secondary Energy|Electricity|Trade")])
+        fun_multindex(df, [("VARIABLE", "Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports")])
     ).index
     index0
     df.loc[index0, "2065":] = np.nan
@@ -16469,7 +16469,7 @@ def fun_add_variables_and_harmonize(
                 # NEIL: Issue here is that the sub-sectors are really small
 
     recalc_vars = {
-        "Secondary Energy|Electricity|Trade": {
+        "Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports": {
             "vars": {"Secondary Energy|Electricity": 1, "Final Energy|Electricity": -1},
             "unit": "EJ/yr",
         },
