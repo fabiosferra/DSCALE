@@ -830,6 +830,9 @@ def fun_harmonize_df_with_IAM(df, df_iam, x, k, verbose=True):
     except:
         a=1
     ratio = ratio.replace(np.inf, np.nan)
+    # For years not present in df_iam (e.g. 2022 when IAM has 5-year intervals),
+    # ratio is NaN — keep original values by filling with 1 (no adjustment).
+    ratio = ratio.fillna(1)
     k_updated = (
         df.xs(k, level="SECTOR")[x].unstack("TIME").reset_index().set_index(u + ["ISO"])
         * ratio.T
@@ -877,7 +880,7 @@ def fun_append_missing_time_index(
     )
     if 2005 in df_iam.columns:
         df_iam=df_iam.drop(2005, axis=1)
-    time_missing = list(set([t for t in num.index]) ^ (set(df_iam.columns)))
+    time_missing = list(set(df_iam.columns) - set([t for t in num.index]))
     time_missing = [col for col in time_missing if col not in [2005]]
 
     # If there are missing data, fill them with nearest time values (e.g. if 2050 is missing, use values from 2045)
