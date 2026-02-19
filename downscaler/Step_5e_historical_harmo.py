@@ -506,19 +506,15 @@ def main(
                     file_tocsv = f"{file_tocsv}_WITH_POLICY"
 
             selcols = [x for x in selcols if x in range(2010, 2105, 5)]
+            # Always include the harmonisation year in the output (even if it falls
+            # between two 5-year model steps, e.g. 2022 between 2020 and 2025)
+            if harmonize_eea_data_until not in selcols:
+                selcols = sorted(selcols + [harmonize_eea_data_until])
 
             # Drop eu 27 as we did some harmonization for NGFS after step 5d
             # (and the primap dataset does not contain eu27 as a region. only eea_data has it)
             if "EU27" in df_merged.reset_index().REGION.unique():
                 df_merged = df_merged.drop("EU27", level="REGION")
-
-            # Just for ENGAGE below:
-            if project == "ENGAGE_2023":
-                selcols = selcols + [harmonize_eea_data_until]
-                selcols.sort()
-            elif project == "REMIND_2025_for_testing":
-                selcols = selcols + [harmonize_eea_data_until]
-                selcols.sort()
             if "FILE" in df_merged.index.names:
                 df_merged = df_merged.droplevel("FILE")
             reg_available=df_merged.reset_index().REGION.unique()

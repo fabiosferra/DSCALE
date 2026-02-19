@@ -215,8 +215,16 @@ def main(
             IAM_SE_Hydrogen = fun_xs(df2, {'VARIABLE': f"{total_var}|Hydrogen"})
             IAM_hydrogen_ratio = IAM_SE_Hydrogen.droplevel("VARIABLE")/IAM_SE_Total.droplevel("VARIABLE")
 
-            # Apply the ratio to the countries within region
-            df1_hydrogen = fun_xs(df1, {'VARIABLE': total_var}).droplevel("VARIABLE") * IAM_hydrogen_ratio.values
+            # Apply the ratio to the countries within region.
+            # Align IAM ratio columns to df1 (df1 may include non-5-year columns
+            # like 2022 that are absent from df_iam; interpolate to fill those gaps).
+            df1_slice = fun_xs(df1, {'VARIABLE': total_var}).droplevel("VARIABLE")
+            IAM_hydrogen_ratio_aligned = (
+                IAM_hydrogen_ratio
+                .reindex(columns=df1_slice.columns)
+                .interpolate(axis=1)
+            )
+            df1_hydrogen = df1_slice * IAM_hydrogen_ratio_aligned.values
             df1_hydrogen["VARIABLE"] = "Secondary Energy|Electricity|Hydrogen"
             df1_hydrogen = df1_hydrogen.reset_index().set_index(['MODEL', 'SCENARIO', 'REGION', 'VARIABLE', 'UNIT'])
 
