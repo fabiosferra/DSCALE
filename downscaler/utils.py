@@ -16871,7 +16871,16 @@ def fun_harmonize_hist_data_general(
                         parent_vals = parent_hist.loc[common_countries, baseyear].abs()
                         # Countries where var is small relative to parent
                         small_mask = var_vals < small_var_threshold * parent_vals
-                        offset_countries = small_mask[small_mask].index.tolist()
+
+                        # Growth check: mean of year-over-year differences across
+                        # all available historical years (>=0 → growing, <0 → shrinking)
+                        hist_cols = sorted([c for c in hist_var.columns if isinstance(c, int)])
+                        data_gradient = hist_var.loc[common_countries, hist_cols].diff(axis=1).mean(axis=1)
+                        growing_mask = data_gradient >= 0
+
+                        # Use offset only when small AND growing
+                        offset_mask = small_mask & growing_mask
+                        offset_countries = offset_mask[offset_mask].index.tolist()
 
                         if len(offset_countries) > 0:
                             n_offset = len(offset_countries)
@@ -16879,8 +16888,8 @@ def fun_harmonize_hist_data_general(
                             print(
                                 f"  NOTE: Using offset harmonisation for '{var}' in "
                                 f"{n_offset}/{n_total} countries "
-                                f"(< {small_var_threshold:.0%} of '{parent_var}' "
-                                f"in hist year {baseyear})"
+                                f"(small: < {small_var_threshold:.0%} of '{parent_var}' "
+                                f"and growing in hist data)"
                             )
                             # Split hist data: ratio countries vs offset countries
                             hist_ratio = hist_var.loc[~hist_var.index.isin(offset_countries)]
