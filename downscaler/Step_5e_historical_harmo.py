@@ -76,6 +76,7 @@ from downscaler.utils import (
     fun_xs_fuzzy,
     convert_time,
     get_native_countries,
+    fun_fe_bottom_up_consistency,
 )
 from matplotlib.backends.backend_pdf import PdfPages
 # import matplotlib as plt
@@ -442,6 +443,15 @@ def main(
             {"Final Energy": 0},
             unit="EJ/yr",
         )
+
+    # ── Post-harmonisation: enforce FE bottom-up consistency ─────────────────
+    # step5e harmonises every FE variable independently, breaking the hierarchy:
+    #   FE|{sector}|{carrier}|{fuel}  →  FE|{sector}|{carrier}
+    #   FE|{sector}|{carrier}         →  FE|{sector}
+    # This pass restores consistency so visible sub-sectors sum to their parent.
+    print("  Enforcing FE bottom-up consistency (post-step5e)...")
+    df_merged = fun_fe_bottom_up_consistency(df_merged)
+
     if csv_file_name:
         # Replace zeroes with np.nan if previous next columns contains data that is not equal to zero. For each model and variable
         if replace_zero_columns_with_na:

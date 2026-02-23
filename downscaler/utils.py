@@ -7515,7 +7515,7 @@ def fun_bottom_up_harmonization(
                     sub_sectors_data_sum[k]=v
                     ratio[k]=v
             idxname=sub_sectors_data.index.names
-            
+
             # Here we calculate the main sector as the sum of sub-sectors
             # Get correct order of index.names, to avoid errors when multiplying dataframes
             a=fun_index_names(sub_sectors_data_sum) # using sub_sectors_data_sum instead of sub_sectors_data 2024_01_10 h13.10
@@ -7539,10 +7539,10 @@ def fun_bottom_up_harmonization(
         if add_unit is not None:
             sub_sectors_data_sum["UNIT"] = add_unit
         cols = downscaled_data.columns
-        
+
         if len(sub_sectors_data_sum)>0:
             # Exclude main sector from `downscaled_data` and replace it with the new data `sub_sectors_data_sum`
-            return pd.concat([fun_xs(downscaled_data, {"SECTOR":main_sector}, exclude_vars=True), 
+            return pd.concat([fun_xs(downscaled_data, {"SECTOR":main_sector}, exclude_vars=True),
                             sub_sectors_data_sum[cols]])
         else:
             return downscaled_data
@@ -7709,6 +7709,119 @@ def fun_top_down_harmonization(
             downscaled_data.loc[idx, :] = sub_data.loc[idx, :]
 
     return downscaled_data
+
+
+def fun_fe_bottom_up_consistency(
+        df: pd.DataFrame, 
+        sectors = ["Industry", "Residential and Commercial", "Transportation"], 
+        carriers_with_fuels = ["Solids", "Liquids", "Gases"], 
+        all_carriers = ["Electricity", "Hydrogen", "Heat", "Solids", "Liquids", "Gases"]
+        ) -> pd.DataFrame:
+    """Enforce bottom-up internal consistency for Final Energy variables after
+    step5e historical harmonisation.
+
+    step5e harmonises every FE variable independently to IEA data, which breaks
+    the full additive hierarchy.  This function restores it in four ordered passes:
+
+    1. FE|{sector}|{carrier}  ←  sum of FE|{sector}|{carrier}|{fuel}
+       (only for carriers that have fuel sub-breakdown: Solids, Liquids, Gases)
+    2. FE|{sector}            ←  sum of FE|{sector}|{carrier}
+       (uses carrier values updated in pass 1)
+    3. FE|{carrier}           ←  sum of FE|{sector}|{carrier}  over sectors
+       (cross-sector aggregation; uses carrier-per-sector values from pass 1)
+    4. Final Energy           ←  sum of FE|{sector}
+       (uses sector totals updated in pass 2)
+
+    Operates on IAMC-style MultiIndex data
+    (index levels: MODEL, SCENARIO, REGION, VARIABLE, UNIT; columns: years).
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        IAMC-format dataframe from step5e (after harmonisation and variable drops).
+    sectors : sectors to re-aggregate
+    carriers_with_fuels : Carriers that decompose into fuel sub-categories
+    all_carriers: All carriers at the sector|carrier level (leaf carriers have no fuel sub-levels)
+    Returns
+    -------
+    pd.DataFrame
+        Updated dataframe with FE hierarchy enforced bottom-up.
+    """
+
+    meta_cols = list(df.index.names)
+    group_cols = [c for c in meta_cols if c not in ("VARIABLE", "UNIT")]
+    # Identify year columns robustly (int or digit-string)
+    year_cols = [c for c in df.columns if str(c).isdigit() or isinstance(c, (int,))]
+
+    def _replace_parent_with_sum(df_r: pd.DataFrame, parent_var: str, child_vars: list) -> pd.DataFrame:
+        """Replace the rows for parent_var with the element-wise sum of child_vars rows."""
+        children_mask = df_r["VARIABLE"].isin(child_vars)
+        if not children_mask.any() or parent_var not in df_r["VARIABLE"].values:
+            return df_r
+        unit = df_r.loc[df_r["VARIABLE"] == parent_var, "UNIT"].iloc[0]
+        new_parent = (
+            df_r[children_mask]
+            .groupby(group_cols, sort=False)[year_cols]
+            .sum(min_count=1)
+            .reset_index()
+            .assign(VARIABLE=parent_var, UNIT=unit)
+        )
+        return pd.concat(
+            [df_r[df_r["VARIABLE"] != parent_var], new_parent[meta_cols + year_cols]],
+            ignore_index=True,
+        )
+
+    vars_present = set(df.index.get_level_values("VARIABLE").unique())
+    df_r = df.reset_index()
+
+    # ── Pass 1: FE|{sector}|{carrier}|{fuel}  →  FE|{sector}|{carrier} ──────
+    for sector in sectors:
+        for carrier in carriers_with_fuels:
+            parent = f"Final Energy|{sector}|{carrier}"
+            prefix = f"{parent}|"
+            children = [v for v in vars_present if v.startswith(prefix)]
+            if parent in vars_present and children:
+                df_r = _replace_parent_with_sum(df_r, parent, children)
+                print(f"  [bottom-up] {parent} ← sum of {len(children)} fuel(s)")
+
+    # ── Pass 2: FE|{sector}|{carrier}  →  FE|{sector} ───────────────────────
+    # Use current df_r (with updated carrier values from pass 1)
+    for sector in sectors:
+        parent = f"Final Energy|{sector}"
+        children = [
+            f"Final Energy|{sector}|{c}"
+            for c in all_carriers
+            if f"Final Energy|{sector}|{c}" in df_r["VARIABLE"].values
+        ]
+        if parent in df_r["VARIABLE"].values and children:
+            df_r = _replace_parent_with_sum(df_r, parent, children)
+            print(f"  [bottom-up] {parent} ← sum of {len(children)} carrier(s)")
+
+    # ── Pass 3: FE|{carrier}  ←  sum of FE|{sector}|{carrier} over sectors ──
+    # Uses carrier-per-sector values updated in pass 1
+    for carrier in all_carriers:
+        parent = f"Final Energy|{carrier}"
+        children = [
+            f"Final Energy|{sector}|{carrier}"
+            for sector in sectors
+            if f"Final Energy|{sector}|{carrier}" in df_r["VARIABLE"].values
+        ]
+        if parent in df_r["VARIABLE"].values and children:
+            df_r = _replace_parent_with_sum(df_r, parent, children)
+            print(f"  [bottom-up] {parent} ← sum of {len(children)} sector(s)")
+
+    # ── Pass 4: Final Energy  ←  sum of FE|{sector} ──────────────────────────
+    # Uses sector totals updated in pass 2
+    fe_children = [
+        f"Final Energy|{sector}"
+        for sector in sectors
+        if f"Final Energy|{sector}" in df_r["VARIABLE"].values
+    ]
+    if "Final Energy" in df_r["VARIABLE"].values and fe_children:
+        df_r = _replace_parent_with_sum(df_r, "Final Energy", fe_children)
+        print(f"  [bottom-up] Final Energy ← sum of {len(fe_children)} sector(s)")
+
+    return df_r.set_index(meta_cols)[year_cols]
 
 
 def fun_down_revenues(
@@ -18694,7 +18807,7 @@ def fun_harmonize_df_with_IAM(df, df_iam, x, k, verbose: bool = True) -> pd.Data
         # For years not present in df_iam (e.g. 2022 when IAM has 5-year intervals),
         # ratio is NaN — keep original values by filling with 1 (no adjustment).
         ratio=ratio.fillna(1)
-        
+
     k_updated = (
         df.xs(k, level="SECTOR")[x].unstack("TIME").reset_index().set_index(u + ["ISO"])
         * ratio
