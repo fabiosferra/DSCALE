@@ -16874,7 +16874,7 @@ def fun_harmonize_hist_data_general(
 
                         # Growth check: mean of year-over-year differences across
                         # all available historical years (>=0 → growing, <0 → shrinking)
-                        hist_cols = sorted([c for c in hist_var.columns if isinstance(c, int)])
+                        hist_cols = sorted([c for c in hist_var.columns if str(c).isdigit()], key=int)
                         data_gradient = hist_var.loc[common_countries, hist_cols].diff(axis=1).mean(axis=1)
                         growing_mask = data_gradient >= 0
 
