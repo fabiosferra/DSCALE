@@ -161,17 +161,22 @@ def main(
 
     # Determine input file
     if input_file is None:
-        # Find the step5e output file matching pattern
-        pattern = f"_{harmonisation_date}_harmo_step5e_None.csv"
+        # Find the Step5d output file(s) — one per model
+        pattern = "_Step5d.csv"
         step5_files = [x for x in os.listdir(mydir) if pattern in x]
         if not step5_files:
             raise FileNotFoundError(
-                f"No step5e output file found matching pattern '*{pattern}' in {mydir}"
+                f"No Step5d output file found matching pattern '*{pattern}' in {mydir}"
             )
-        input_file = step5_files[0]
+        if len(step5_files) == 1:
+            input_file = step5_files[0]
 
-    logging.info(f"Reading input file: {input_file}")
-    df = fun_read_csv({0: mydir / input_file}, True, int)[0]
+    if input_file is not None:
+        logging.info(f"Reading input file: {input_file}")
+        df = fun_read_csv({0: mydir / input_file}, True, int)[0]
+    else:
+        logging.info(f"Reading and merging input files: {step5_files}")
+        df = pd.concat([fun_read_csv({0: mydir / f}, True, int)[0] for f in step5_files])
 
     # Get regional mapping
     myres = {}

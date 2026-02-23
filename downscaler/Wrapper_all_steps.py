@@ -611,10 +611,19 @@ def main(
             countrylist=countrylist,
             remove_single_countries=False,
         )
+    if step5g:
+        Step_5g_synfuels.main(
+            project_folder=project_folder,
+            file_suffix=file_suffix,
+            list_of_targets=list(targets),
+            list_of_models=list(models),
+            harmonisation_date=harmonize_eea_data_until,
+        )
+
     # file_visual = "_NGFS_2023_04_19_2019_harmo_step5e_None.csv"
     if step5e:
         Step_5e_historical_harmo.main(
-            files=["Step5d.csv", "snapshot_all_regions.csv"],
+            files=[f"{harmonize_eea_data_until}_harmo_step5g_synfuel.csv", "snapshot_all_regions.csv"],
             models_dict={project_folder: list(models)},
             sel_vars=sel_plot_vars_step5e,  # just for plots - not used here as we exit the function earlier
             harmo_vars=step5e_harmo,  # variables to be harmonized
@@ -640,22 +649,15 @@ def main(
             # aggregate_eu_27=True,
         )
 
-    if step5g:
-        Step_5g_synfuels.main(
-            project_folder=project_folder,
-            file_suffix=file_suffix,
-            list_of_targets=list(targets),
-            list_of_models=list(models),
-            harmonisation_date=harmonize_eea_data_until,
-        )
-
     if step5h:
+        harmo_str = "harmo" if harmonize_hist_data else "NOT_HARMONIZED"
         Step_5h_SE_Hydrogen.main(
             project_folder=project_folder,
             file_suffix=file_suffix,
             list_of_targets=list(targets),
             list_of_models=list(models),
             harmonisation_date=2022,
+            input_file=f"{list(models)[0]}_{harmonize_eea_data_until}_{harmo_str}_step5e_None.csv",
         )
 
     sens_list = [""]
