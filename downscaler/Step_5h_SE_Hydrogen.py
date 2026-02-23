@@ -151,6 +151,24 @@ def main(
     mydict = {
         total_var: [
             'Secondary Energy|Electricity|Biomass',
+            'Secondary Energy|Electricity|Biomass|w/ CCS',
+            'Secondary Energy|Electricity|Biomass|w/o CCS',
+            'Secondary Energy|Electricity|Coal',
+            'Secondary Energy|Electricity|Coal|w/ CCS',
+            'Secondary Energy|Electricity|Coal|w/o CCS',
+            'Secondary Energy|Electricity|Gas',
+            'Secondary Energy|Electricity|Gas|w/ CCS',
+            'Secondary Energy|Electricity|Gas|w/o CCS',
+            'Secondary Energy|Electricity|Oil',
+            'Secondary Energy|Electricity|Nuclear',
+            'Secondary Energy|Electricity|Solar',
+            'Secondary Energy|Electricity|Wind',
+            'Secondary Energy|Electricity|Hydro',
+            'Secondary Energy|Electricity|Geothermal',
+            'Secondary Energy|Electricity|Hydrogen',
+        ],
+        "var_to_agg": [
+            'Secondary Energy|Electricity|Biomass',
             'Secondary Energy|Electricity|Coal',
             'Secondary Energy|Electricity|Gas',
             'Secondary Energy|Electricity|Oil',
@@ -200,7 +218,7 @@ def main(
 
             # Slice for specific variables
             vars_in_df1 = df1.index.get_level_values('VARIABLE').unique().tolist()
-            vars_to_agg = mydict[total_var]
+            vars_to_agg = mydict["var_to_agg"]
 
             if total_var not in vars_in_df1:
                 logging.info(f"'{total_var}' not in data for {scen}/{r}, skipping")
@@ -228,18 +246,23 @@ def main(
             df1_hydrogen["VARIABLE"] = "Secondary Energy|Electricity|Hydrogen"
             df1_hydrogen = df1_hydrogen.reset_index().set_index(['MODEL', 'SCENARIO', 'REGION', 'VARIABLE', 'UNIT'])
 
-            # Create a dataframe with all fuels within Power
+            # Recompute Total Power sector
             df1_agg = pd.concat([
                 fun_xs(df1, {'VARIABLE': vars_to_agg}), 
                 df1_hydrogen
             ])
-
-            # Recompute Total Power sector
             df1_total_power = df1_agg.groupby(["MODEL", "SCENARIO", "REGION", "UNIT"]).sum()
             df1_total_power["VARIABLE"] = total_var
             df1_total_power = df1_total_power.reset_index().set_index(['MODEL', 'SCENARIO', 'REGION', 'VARIABLE', 'UNIT'])
 
-            updated_power_sector = pd.concat([df1_total_power, df1_agg])
+            # Create a dataframe with fuels to be aggregated Power
+            total_var = mydict[total_var]
+            df1_full = pd.concat([
+                fun_xs(df1, {'VARIABLE': vars_to_agg}), 
+                df1_hydrogen
+            ])
+
+            updated_power_sector = pd.concat([df1_total_power, df1_full])
 
             # Update df 
             updated_results = fun_index_names(updated_power_sector, True, int)
