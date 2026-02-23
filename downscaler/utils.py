@@ -17019,6 +17019,7 @@ def fun_harmonize_hist_data_general(
                             df_merged = fun_harmonize_hist_data(
                                 df_merged, var, conv, hist_offset,
                                 method="offset", coerce_errors=True,
+                                clip_positive=clip,
                             )
                             return df_merged
         # ── End per-country offset override ──────────────────────────────
