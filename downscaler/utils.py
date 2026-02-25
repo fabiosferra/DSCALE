@@ -16987,11 +16987,16 @@ def fun_harmonize_hist_data_general(
 
                         # Growth check: mean of year-over-year differences across
                         # all available historical years (>=0 → growing, <0 → shrinking)
-                        hist_cols = sorted([c for c in hist_var.columns if str(c).isdigit()], key=int)
-                        data_gradient = hist_var.loc[common_countries, hist_cols].diff(axis=1).mean(axis=1)
+                        data_gradient = (
+                            df_merged
+                            .xs(var,level="VARIABLE")
+                            .diff(axis=1).mean(axis=1)
+                            .droplevel(['MODEL','SCENARIO','UNIT','FILE'])
+                        )
                         growing_mask = data_gradient >= 0
 
-                        # Use offset only when small AND growing
+                        # Use offset only when small AND growing (for small and shrinking we still
+                        # use ratio mask)
                         offset_mask = small_mask & growing_mask
                         offset_countries = offset_mask[offset_mask].index.tolist()
 
