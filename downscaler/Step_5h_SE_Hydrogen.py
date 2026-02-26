@@ -22,6 +22,7 @@ from downscaler.utils import (
     fun_xs_fuzzy,
     fun_wildcard,
     iea_countries,
+    match_any_with_wildcard,
     run_sector_harmo_enhanced_iamc,
     show_inconsistencies,
 )
@@ -48,6 +49,7 @@ def main(
     file_suffix: str,
     list_of_targets: List[str] = ["*"],
     list_of_models: List[str] = ["*"],
+    list_of_regions: List[str] = ["*"],
     sel_reg: Optional[str] = None,
     harmonisation_date: int = 2022,
     input_file: Optional[str] = None,
@@ -198,6 +200,12 @@ def main(
             if len(set(v) & set(countrylist)) > 0
         }
 
+    if list_of_regions != ["*"]:
+        regmap = {
+            k: v for k, v in regmap.items()
+            if match_any_with_wildcard(k, list_of_regions)
+        }
+
     for r, region_countrylist in regmap.items():
         for scen in scenarios:
             # Check if this scenario exists in the data for these regions
@@ -256,7 +264,6 @@ def main(
             df1_total_power = df1_total_power.reset_index().set_index(['MODEL', 'SCENARIO', 'REGION', 'VARIABLE', 'UNIT'])
 
             # Create a dataframe with fuels to be aggregated Power
-            total_var = mydict[total_var]
             df1_full = pd.concat([
                 fun_xs(df1, {'VARIABLE': vars_to_agg}), 
                 df1_hydrogen
