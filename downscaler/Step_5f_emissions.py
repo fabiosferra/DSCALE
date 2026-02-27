@@ -347,8 +347,10 @@ def main(
                         trade = fun_xs(df_for_hist, {'VARIABLE': var})
 
                         # If harm_year is not in trade columns (e.g. 2022 with 5-year
-                        # steps), insert it and interpolate linearly from neighbours.
-                        if harm_year not in trade.columns:
+                        # steps), OR the column exists but is all NaN (variable not in
+                        # step5e_harmo → only 5-year IAM values, no interpolated harm_year),
+                        # insert/overwrite it as NaN and interpolate linearly from neighbours.
+                        if harm_year not in trade.columns or trade[harm_year].isna().all():
                             trade[harm_year] = np.nan
                             trade = trade.sort_index(axis=1).interpolate(axis=1)
 
@@ -577,6 +579,6 @@ if __name__ == "__main__":
         step="step5",
         models=['REMIND *'],
         scenarios=["NPE-*"],
-        harm_year = 2022,
+        harm_year = 2023,
         countrylist= None
               )
