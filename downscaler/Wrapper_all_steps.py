@@ -657,7 +657,7 @@ def main(
             list_of_targets=list(targets),
             list_of_models=list(models),
             list_of_regions=list_of_regions,
-            harmonisation_date=2022,
+            harmonisation_date=harmonize_eea_data_until,
             input_file=f"{list(models)[0]}_{harmonize_eea_data_until}_{harmo_str}_step5e_None.csv",
         )
 
