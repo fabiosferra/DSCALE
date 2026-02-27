@@ -51,7 +51,7 @@ def main(
     list_of_models: List[str] = ["*"],
     list_of_regions: List[str] = ["*"],
     sel_reg: Optional[str] = None,
-    harmonisation_date: int = 2022,
+    harmonisation_date: int = 2023,
     input_file: Optional[str] = None,
     sectors: List[str] = None,
     carriers: List[str] = None,
@@ -292,5 +292,5 @@ if __name__ == "__main__":
         list_of_targets=['NPE-core'],
         list_of_models=["*"],
         sel_reg='LAMr',
-        harmonisation_date=2022,
+        harmonisation_date=2023,
     )
