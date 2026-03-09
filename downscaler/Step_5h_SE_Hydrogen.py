@@ -117,7 +117,7 @@ def main(
 
     # Determine input file
     if input_file is None:
-        # Find the step5e output file matching pattern
+        # Find the step5g output file matching pattern
         pattern = f"_{harmonisation_date}_harmo_step5g_synfuel.csv"
         step5_files = [x for x in os.listdir(mydir) if pattern in x]
         if not step5_files:

@@ -116,8 +116,8 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 
 if __name__ == "__main__":
     main_with_yaml_config(
-        config_file_name="REMIND_fuel_mix_testing/config.yaml", # NGFS 2024 not working
-        file_suffix = "26_02_2026", 
+        config_file_name="REMIND_Q1_2026/config.yaml", # NGFS 2024 not working
+        file_suffix = "09_03_2026", 
         list_of_models=["REMIND 3.4"], # To run step5f, we need the exact name atm
         list_of_regions=["*"], 
         list_of_targets=["NPE-core"], # To run step5f, we need the exact name atm
@@ -130,23 +130,23 @@ if __name__ == "__main__":
         step0=False, # stsep0 finish by asking if you want to produce a subset SSP projections just for the regions/countries you want
 
         # When steps are commented, it will do like in the config.yml file
-        step1=False,
-        step1b=False,
-        step2=False, 
-        step2_pick_one_pathway=False,
-        fun_finalize_step2_all_targets=False,
-        step3=False,
-        step5=False,  # additional variables
-        step5b=False,  # sectorial emissions and revenues
-        step5c=False,  # non-co2
-        step5c_bis=False,  # hydrogen share aynd trade variables
-        step5c_tris=False,  # afolu
-        step5d=False,  # eu27 and aggregate results from multiple files
-        step5g=False,  # synfuels calculation (auto-detects regions with data)
-        step5e=False,  # harmonize with historical data
+        # step1=False,
+        # step1b=False,
+        # step2=False, 
+        # step2_pick_one_pathway=False,
+        # fun_finalize_step2_all_targets=False,
+        # step3=False,
+        # step5=False,  # additional variables
+        # step5b=False,  # sectorial emissions and revenues
+        # step5c=False,  # non-co2
+        # step5c_bis=False,  # hydrogen share aynd trade variables
+        # step5c_tris=False,  # afolu
+        # step5d=False,  # eu27 and aggregate results from multiple files
+        # step5g=False,  # synfuels calculation (auto-detects regions with data)
+        # step5e=False,  # harmonize with historical data
         # step5h=False, # compute SE|Elec|Hydrogen
-        step4=False,
-        step5e_after_policy=False,
-        step5f=False, # emissions data 
-        step6=False,
+        # step4=False,
+        # step5e_after_policy=False,
+        # step5f=False, # emissions data 
+        # step6=False,
     )
