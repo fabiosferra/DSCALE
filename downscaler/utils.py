@@ -16550,13 +16550,17 @@ def fun_add_variables_and_harmonize(
         mv = f"Primary Energy|{f}"
         subs = [f"Primary Energy|{f}|w/ CCS", f"Primary Energy|{f}|w/o CCS"]
         if mv in df_merged.reset_index().VARIABLE.unique():
-            if len(fun_xs(df_merged, {"VARIABLE": subs})):
-                df_merged = fun_recalculate_existing_var_as_sum(
-                    df_merged,
-                    mv,
-                    subs,
-                    unit="EJ/yr",
-                )
+            subs_data = fun_xs(df_merged, {"VARIABLE": subs})
+            if len(subs_data):
+                n_regions_mv = df_merged.reset_index().query("VARIABLE == @mv")["REGION"].nunique()
+                n_regions_subs = subs_data.reset_index()["REGION"].nunique()
+                if n_regions_subs >= n_regions_mv:
+                    df_merged = fun_recalculate_existing_var_as_sum(
+                        df_merged,
+                        mv,
+                        subs,
+                        unit="EJ/yr",
+                    )
 
     # RECALCULATE SECONDARY ENERGY|ELECTRICITY (after the harmonization) as the sum of fuels
     for mv in ["Primary Energy", "Secondary Energy|Electricity"]:
