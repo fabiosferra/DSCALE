@@ -1187,6 +1187,8 @@ vars_to_be_harmo_step2a = [
     "Secondary Energy|Solids|Coal",
     "Primary Energy",
     "Primary Energy|Biomass",
+    "Primary Energy|Biomass|w/ CCS",
+    "Primary Energy|Biomass|w/o CCS",
     "Primary Energy|Coal",
     "Primary Energy|Coal|w/ CCS",
     "Primary Energy|Coal|w/o CCS",
@@ -1853,6 +1855,8 @@ step3_var = [
     "Carbon Sequestration|CCS",
     "Carbon Sequestration|CCS|Biomass",
     "Carbon Sequestration|CCS|Industrial Processes",
+    "Primary Energy|Biomass|w/ CCS",
+    "Primary Energy|Biomass|w/o CCS",
     "Primary Energy|Coal|w/ CCS",
     "Primary Energy|Coal|w/o CCS",
     "Primary Energy|Fossil|w/ CCS",
@@ -1953,6 +1957,8 @@ check_consistency_dict = {
     "step2": {
         "Primary Energy": [
             "Primary Energy|Biomass",
+            "Primary Energy|Biomass|w/ CCS",
+            "Primary Energy|Biomass|w/o CCS",
             "Primary Energy|Coal|w/ CCS",
             "Primary Energy|Coal|w/o CCS",
             "Primary Energy|Gas|w/ CCS",
@@ -2161,7 +2167,8 @@ step5e_harmo = [
     # "Emissions|CO2",  # NOTE Calculated as the sum of subsectors
     "Primary Energy",
     "Primary Energy|Biomass",
-    # "Primary Energy|Biomass|w/o CCS", # not available in dataframe
+    "Primary Energy|Biomass|w/ CCS",
+    "Primary Energy|Biomass|w/o CCS",
     "Primary Energy|Coal",
     "Primary Energy|Coal|w/o CCS",
     "Primary Energy|Fossil",
