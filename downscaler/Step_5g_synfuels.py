@@ -55,7 +55,8 @@ from downscaler.utils_pandas import (
 # -----------------------------------
 # LOGGING CONFIG -------------------
 # -----------------------------------
-logging.basicConfig(level=logging.INFO)
+# NOTE: Do not call logging.basicConfig here — it pre-empts the file handler
+# configured by run_multiple_files.py. Logging is configured by the caller.
 
 
 # -----------------------------------

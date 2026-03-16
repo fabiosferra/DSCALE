@@ -195,7 +195,7 @@ def main(
 
             df = fun_rename_sector_and_region(df)
 
-            ## Creating 'Secondary Energy|Eletricity|Trade' as the difference between Secondary and Final electricity (NO need to create a loop   (already applies to all scenario/regions))
+            ## Creating 'Secondary Energy|Eletricity|T&D losses, conversion to synthetic fuels and net exports' as the difference between Secondary and Final electricity (NO need to create a loop   (already applies to all scenario/regions))
             df = fun_create_variable_sum(
                 df,
                 _new_var_name="Secondary Energy|Electricity|T&D losses, conversion to synthetic fuels and net exports",
