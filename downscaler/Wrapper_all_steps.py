@@ -765,6 +765,7 @@ def main(
             region_patterns=list_of_regions,
             country_patterns="*",  # "AUT",
             hist_emi_src="PRIMAP",
+            file_suffix=file_suffix,
         )
 
 

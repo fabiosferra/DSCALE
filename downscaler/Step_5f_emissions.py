@@ -7,7 +7,7 @@ from typing import Optional
 from downscaler import CONSTANTS
 
 from pandas.testing import assert_frame_equal
-from downscaler.utils_pandas import fun_xs, fun_create_var_as_sum, fun_rename_index_name, fun_add_multiply_dfmultindex_by_dfsingleindex
+from downscaler.utils_pandas import fun_xs, fun_create_var_as_sum, fun_rename_index_name
 from downscaler.utils_emissions import (
     fun_read_results,
     run_sector_harmo_enhanced_iamc,
@@ -339,7 +339,6 @@ def main(
 
                 # -- Harmonize each variable with IEA historical data --
                 harmo_results = {}
-                from downscaler.utils_emissions import fun_discount_rate
                 for var in vars_to_harmonize_hist:
                     try:
                         # `trade`: country-level data from Stage 2 for this variable
@@ -365,32 +364,41 @@ def main(
                             iea_adj[harm_year] = np.nan
                             iea_adj = iea_adj.sort_index(axis=1).interpolate(axis=1, limit_direction='forward')
 
-                        # Compute delta at harm_year ONLY, then apply as a constant
-                        # shift to all years. This ensures harmonization anchors at
-                        # harm_year (e.g. 2023) — NOT at all prior 5-year steps.
-                        # fun_match_hist would compute per-year deltas for ALL
-                        # historical years, making 2020 always match IEA(2020).
-                        delta_df = fun_add_multiply_dfmultindex_by_dfsingleindex(
-                            -trade[[harm_year]], iea_adj[[harm_year]], operator='+'
-                        )
-                        # delta_df[harm_year] = iea(harm_year) - trade(harm_year) per country
-                        # Countries not in IEA get NaN → preserved via fillna in blending
-                        trade_match = trade.add(delta_df[harm_year], axis=0)
-                        if len(trade_match.dropna(how="all")) == 0:
+                        # STAGE 3 APPROACH:
+                        # For years <= harm_year: directly overwrite with IEA historical data
+                        #   (exact match — no shifting or blending).
+                        # For years > harm_year: blend the harm_year delta (IEA - Stage2)
+                        #   linearly to 0 by tc=2050, then revert to the Stage 2 trajectory.
+                        # Countries with no IEA data keep Stage 2 values throughout.
+
+                        tc = 2080  # year at which the historical correction fully fades out
+
+                        # Start from Stage 2 values
+                        var_harmo = trade.copy()
+
+                        # --- 1. Overwrite pre-harm_year columns with IEA data ---
+                        hist_cols = sorted([c for c in trade.columns
+                                            if c <= harm_year and c in iea_adj.columns])
+                        for col in hist_cols:
+                            iea_vals = iea_adj[col].reindex(
+                                var_harmo.index.get_level_values('REGION')
+                            )
+                            iea_vals.index = var_harmo.index
+                            has_iea = iea_vals.notna()
+                            var_harmo.loc[has_iea, col] = iea_vals[has_iea]
+
+                        if len(var_harmo.dropna(how="all")) == 0:
                             continue
 
-                        # BLENDING: create weights w that go from 1 (at harm_year)
-                        # to 0 (at tc=2050). This ensures:
-                        #   - At harm_year: result = trade_match (fully IEA-matched)
-                        #   - At 2050+:     result = trade (fully original Stage 2 value)
-                        #   - In between:   linear interpolation
-                        # fun_discount_rate returns a Series indexed by year with
-                        # values between 0 and 1.
-                        # Build year lists that include harm_year so w(harm_year)=1 exactly
-                        all_years = sorted(set(list(range(2010, 2505, 5)) + [harm_year]))
-                        hist_years = sorted(set(list(range(2005, harm_year + 1, 5)) + [harm_year]))
-                        w = fun_discount_rate(all_years, hist_years, 2080, 1, 0)
-                        var_harmo = (trade_match.fillna(0) * w + trade.fillna(0) * (1 - w)).dropna(how='all', axis=1)
+                        # --- 2. Blend post-harm_year: delta at harm_year → 0 by tc ---
+                        # delta = IEA(harm_year) - Stage2(harm_year), per country row
+                        # Countries not in IEA have NaN delta → treated as 0 (no adjustment)
+                        if harm_year in var_harmo.columns and harm_year in trade.columns:
+                            delta = var_harmo[harm_year] - trade[harm_year]
+                            future_cols = sorted([c for c in trade.columns if c > harm_year])
+                            for col in future_cols:
+                                w = max(0.0, (tc - col) / (tc - harm_year))
+                                var_harmo[col] = trade[col] + delta.fillna(0) * w
 
                         # Conditional clip (per cell): if the pre-harmonization value
                         # was non-negative but harmonization pushed it below zero,
@@ -554,8 +562,13 @@ def main(
             iam=df_iam.xs((var, f"{model}|{r[:-1]}"), level=("VARIABLE","REGION")).groupby(["TARGET"]).sum()
             iam=fun_rename_index_name(fun_xs(iam, {"TARGET":scenarios}), {"SCENARIO":"TARGET"})[range(2010,2055,5)]
             dfsum=fun_index_names(dfsum, True, int)
+            # Align to the same year columns; skip if dfsum is empty
+            # (variable not computed for this region) or no common years.
+            iam_cols = [c for c in iam.columns if c in dfsum.columns]
+            if dfsum.empty or not iam_cols:
+                continue
             try:
-                assert_frame_equal(np.round(dfsum.T,5), np.round(iam.T,5))
+                assert_frame_equal(np.round(dfsum[iam_cols].T,5), np.round(iam[iam_cols].T,5))
             except Exception as e:
                 print(r, var, e, "\n")
 

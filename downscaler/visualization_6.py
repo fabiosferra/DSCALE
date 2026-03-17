@@ -1427,6 +1427,7 @@ def run_step6(
     var_list: Union[str, list] = [""],
     pdf_out: str = "Step_6",
     hist_emi_src="PRIMAP",
+    file_suffix: str = None,
 ):
     """Runs step6, which includes input data loading, IAM pattern matching, plotting and finally saving in PDFs
 
@@ -1457,7 +1458,10 @@ def run_step6(
     if not os.path.isdir(results_dir / project_name):
         os.mkdir(results_dir / project_name)
     input_dir = CONSTANTS.INPUT_DATA_DIR / project_name
-    step5_dir = CONSTANTS.RES_DIR / "5_Explorer_and_New_Variables"  # / project_name
+    if file_suffix is not None:
+        step5_dir = CONSTANTS.NESTED_RES_DIR("step5", project_name, file_suffix)
+    else:
+        step5_dir = CONSTANTS.RES_DIR / "5_Explorer_and_New_Variables"  # / project_name
 
     # if "step_6_input_iam_snapshot.pkl" not in os.listdir(input_dir):
     get_df_iam_all_orig(input_dir / "snapshot_all_regions.csv").to_pickle(
