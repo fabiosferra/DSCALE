@@ -71,13 +71,6 @@ if os.path.exists(CONSTANTS.INPUT_DATA_DIR/project/"GDP_NGFS_merged.csv"):
 
     res={}
     for model in models:
-        # Step3 (GDP downscaling) requires step2 output to exist. If it doesn't yet
-        # (e.g. first run with a new file_suffix), skip here and let step C handle it.
-        step2_output = CONSTANTS.CURR_RES_DIR('step2') / f"{model}_{d['file_suffix']}.csv"
-        if not os.path.exists(step2_output):
-            print(f"Step2 output not found for {model} (expected: {step2_output}). "
-                  f"Skipping GDP step3 — will run as part of step C.")
-            continue
         # Here we run step3 (to downscale the GDP) for
         main_with_yaml_config(**{**d,**steps,**{'step3':True}, **{'list_of_models':[model], "list_of_regions":["*"]}})
         file=CONSTANTS.CURR_RES_DIR('step3')/f"GDP_{d['file_suffix']}_updated_gdp_harmo.csv"
