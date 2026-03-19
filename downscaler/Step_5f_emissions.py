@@ -528,11 +528,59 @@ def main(
         df = df.apply(pd.to_numeric, errors='coerce')
         df = df.sort_index(axis=1).interpolate(axis=1, limit_direction='both')
 
+    # Fix single-year spikes caused by near-zero energy denominators in upstream
+    # emission factor calculations (e.g. when a fuel carrier crosses zero at one
+    # 5-year step).
+    #
+    # Two checks are applied at each interior year:
+    #   (1) Standard: deviation from neighbor midpoint > 5× |midpoint| + 0.1
+    #       Catches sharp isolated spikes (e.g. GEO Industry 2060).
+    #   (2) Local-extremum: the year is a local min/max (V-shape) AND deviation
+    #       > 0.75× |midpoint| + 0.1, restricted to Energy variables.
+    #       Catches shallower but clearly anomalous dips that survive check (1)
+    #       because both immediate neighbours are also pulled toward the artifact
+    #       (e.g. MDA Industry 2060: -2.6 → -5.0 → -2.8).
+    #
+    # NOTE: must run BEFORE the 2065 midpoint fix so that a spiked 2060 is
+    # checked against the clean Stage-2 2065 (not a value derived from the spike).
+    _year_cols = sorted([c for c in df.columns if str(c).isdigit()])
+    _df = df[_year_cols].astype(float)
+    _rel_threshold = 5.0    # standard isolated-spike threshold
+    _rel_extremum   = 0.75  # local-extremum (V-shape) threshold
+    _abs_threshold  = 0.1   # floor: 0.1 Mt CO2/yr
+    _n_fixed = 0
+    # Boolean mask: rows that are Energy sector variables (not LULUCF/AFOLU/totals)
+    _energy_mask = df.index.get_level_values('VARIABLE').str.contains('Energy', na=False)
+    for _i in range(1, len(_year_cols) - 1):
+        _prev, _curr, _next = _year_cols[_i - 1], _year_cols[_i], _year_cols[_i + 1]
+        _interp = (_df[_prev] + _df[_next]) / 2
+        _deviation = (_df[_curr] - _interp).abs()
+        # Check (1): standard threshold
+        _is_spike = _deviation > (_rel_threshold * _interp.abs() + _abs_threshold)
+        # Check (2): local extremum in Energy variables
+        _diff_left  = _df[_curr] - _df[_prev]
+        _diff_right = _df[_next] - _df[_curr]
+        _is_extremum = (_diff_left * _diff_right) < 0   # direction reverses at _curr
+        _is_spike_extremum = (
+            _energy_mask
+            & _is_extremum
+            & (_deviation > (_rel_extremum * _interp.abs() + _abs_threshold))
+        )
+        _is_spike = _is_spike | _is_spike_extremum
+        if _is_spike.any():
+            _df.loc[_is_spike, _curr] = _interp[_is_spike]
+            _n_fixed += _is_spike.sum()
+    if _n_fixed:
+        print(f"  [spike fix] Interpolated {_n_fixed} single-year outliers")
+    df[_year_cols] = _df
+
     # Fix 2065 spike: the IAM has no 2065 column (jumps 2060→2070), so Stage 2
     # interpolates it with near-zero denominators → huge artefacts. Re-interpolate
-    # 2065 as the midpoint of 2060 and 2070.
+    # 2065 as the midpoint of 2060 and 2070. Must run AFTER the spike fix so that
+    # a spiked 2060 is corrected first before 2065 inherits from it.
     if '2065' in df.columns and '2060' in df.columns and '2070' in df.columns:
         df['2065'] = (df['2060'].astype(float) + df['2070'].astype(float)) / 2
+
 
     # =========================================================================
     # 8. SAVE & VALIDATE
@@ -587,11 +635,11 @@ def main(
 # NOTE: you may need to re-run non-co2 emissions (step5c) using the   `run_multiple_file.py` before running this script (this will take approximately 10 mins)
 if __name__ == "__main__":
     main(
-        project="REMIND_fuel_mix_testing",
-        csv_in = '17_02_2026', 
+        project="REMIND_Q1_2026",
+        csv_in = '18_03_2026', 
         step="step5",
         models=['REMIND *'],
-        scenarios=["NPE-*"],
+        scenarios=["NPE-core"],
         harm_year = 2023,
         countrylist= None
               )
