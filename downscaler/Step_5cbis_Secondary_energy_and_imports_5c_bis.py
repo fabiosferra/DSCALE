@@ -199,6 +199,8 @@ def main(
                             var,
                             var_den=var_den,
                         )
+                        if not len(trade):
+                            continue
                         av_scen=trade.reset_index().SCENARIO.unique()
                         trade=fun_xs(trade, {"SCENARIO":scenarios})
                         if not len(trade):

@@ -129,6 +129,8 @@ development.
     ```
 Please note that `6_Visuals` folder contains graphs of the downscaled results (that will be created if you run  `step6`).
 
+The latest file produced is step5
+
 4. Please open the log file, located in the `input_data/project/logs` to check if your run was successful.
 ```
 └── 📁input_data

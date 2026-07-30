@@ -188,7 +188,7 @@ def main(
             list_of_regions=fun_flatten_list(list_of_regions)
             list_of_regions=list(set([f'*{x[:-1]}*' for x in list_of_regions]))
     except Exception as e:
-        print(e)    
+        print(e)
     selection_dict = get_selection_dict(
             InputFile(input_file), list_of_models, list_of_regions
         )
@@ -748,7 +748,11 @@ def main(
                 f"We cannot find results WITH_POLICY to be used in the step6 visualizations. \n"
                 "Would you like to use the results WITHOUT POLICY instead (y/n)? \n \n"
             )
-            action = input(txt)
+            try:
+                action = input(txt)
+            except EOFError:
+                action = "y"
+                logging.info("Non-interactive mode: defaulting to use results WITHOUT POLICY")
             if action.lower() in ["yes", "y"]:
                 file_visual = f"_{harmonize_eea_data_until}_harmo_step5e_None.csv"
             else:

@@ -364,14 +364,26 @@ def main(
                             iea_adj[harm_year] = np.nan
                             iea_adj = iea_adj.sort_index(axis=1).interpolate(axis=1, limit_direction='forward')
 
-                        # STAGE 3 APPROACH:
+                        # STAGE 3 APPROACH (ratio-based):
                         # For years <= harm_year: directly overwrite with IEA historical data
                         #   (exact match — no shifting or blending).
-                        # For years > harm_year: blend the harm_year delta (IEA - Stage2)
-                        #   linearly to 0 by tc=2050, then revert to the Stage 2 trajectory.
-                        # Countries with no IEA data keep Stage 2 values throughout.
+                        # For years > harm_year: blend the harm_year ratio (IEA / Stage2)
+                        #   linearly to 1 by tc, then multiply the Stage 2 trajectory by it.
+                        #   Ratio (not offset/additive) is used deliberately: an additive
+                        #   delta stays a fixed Mt CO2 amount regardless of how small the
+                        #   model's own trajectory (trade) has become, so it can dominate
+                        #   and produce implausible totals once a sector has decarbonized
+                        #   in the model (e.g. ZAF Electricity, where Stage2 trade[2050]
+                        #   is ~0 but an additive correction kept the total near 30 Mt
+                        #   CO2). A ratio scales trade[year] directly, so as trade[year]
+                        #   shrinks toward 0 the correction shrinks with it automatically
+                        #   — it stays physically tied to the model's own decarbonization
+                        #   shape instead of persisting as a leftover absolute amount.
+                        # Countries with no IEA data, or with a near-zero Stage 2 base-year
+                        # value (ratio undefined/unstable), keep Stage 2 values throughout.
 
-                        tc = 2080  # year at which the historical correction fully fades out
+                        tc = 2050  # year at which the historical correction fully fades out
+                        RATIO_BASE_FLOOR = 0.1  # Mt CO2/yr: below this, ratio is unstable/meaningless
 
                         # Start from Stage 2 values
                         var_harmo = trade.copy()
@@ -390,15 +402,21 @@ def main(
                         if len(var_harmo.dropna(how="all")) == 0:
                             continue
 
-                        # --- 2. Blend post-harm_year: delta at harm_year → 0 by tc ---
-                        # delta = IEA(harm_year) - Stage2(harm_year), per country row
-                        # Countries not in IEA have NaN delta → treated as 0 (no adjustment)
+                        # --- 2. Blend post-harm_year: ratio at harm_year → 1 by tc ---
+                        # ratio = IEA(harm_year) / Stage2(harm_year), per country row.
+                        # Countries not in IEA, or whose Stage2 base-year value is below
+                        # RATIO_BASE_FLOOR, get ratio = 1 (no adjustment) instead of a
+                        # division blow-up.
                         if harm_year in var_harmo.columns and harm_year in trade.columns:
-                            delta = var_harmo[harm_year] - trade[harm_year]
+                            base = trade[harm_year]
+                            stable_base = base.abs() >= RATIO_BASE_FLOOR
+                            ratio = var_harmo[harm_year] / base.replace(0, np.nan)
+                            ratio = ratio.where(stable_base, 1.0).fillna(1.0)
                             future_cols = sorted([c for c in trade.columns if c > harm_year])
                             for col in future_cols:
                                 w = max(0.0, (tc - col) / (tc - harm_year))
-                                var_harmo[col] = trade[col] + delta.fillna(0) * w
+                                blended_ratio = 1.0 + (ratio - 1.0) * w
+                                var_harmo[col] = trade[col] * blended_ratio
 
                         # Conditional clip (per cell): if the pre-harmonization value
                         # was non-negative but harmonization pushed it below zero,
@@ -416,13 +434,34 @@ def main(
 
                 # -- Proportionally rescale fuel sub-sectors --
                 # After shifting main sectors (e.g. Industry), the by-fuel breakdown
-                # (e.g. Industry|Coal, Industry|Gas, Industry|Oil) must be rescaled
-                # to maintain consistency. We apply the same ratio (new/old) to all
-                # fuel sub-sectors of each harmonized main sector.
+                # (e.g. Industry|Coal, Industry|Gas, Industry|Oil) is rescaled to
+                # maintain consistency: new_sub = new_main * share, where share is
+                # each fuel's fraction of the pre-harmonization (Stage 2) main-sector
+                # total.
+                #
+                # Once a country's fossil generation has nearly fully decarbonized in
+                # the IAM trajectory, old_main (Stage 2) can fall to near-zero while
+                # still being nonzero, at which point its Coal/Gas/Oil split is
+                # dominated by rounding/interpolation noise rather than real
+                # composition (e.g. ZAF Electricity: old_main drops to ~0.26 Mt CO2
+                # by 2045, with residual "Oil" noise (0.21 Mt) outweighing "Coal"
+                # (0.02 Mt) even though Coal is the real historical/dominant fuel and
+                # the power mix has ~0 oil generation). If new_main still differs
+                # substantially from old_main in that year (e.g. mid-fade of Stage
+                # 3's historical ratio correction), applying that noisy split to the
+                # new total inflates one fuel to an implausible absolute value (this
+                # was observed as ~27 Mt CO2/yr of "Oil" emissions from ~0 EJ of
+                # oil-fired generation, back when Stage 3 used an additive offset
+                # rather than a ratio — see the ratio-vs-offset note above).
+                #
+                # To avoid this, each fuel's share is frozen at the last year
+                # old_main was still above SHARE_FLOOR, and carried forward through
+                # the noisy (near-zero) years instead of being recomputed from them.
                 # step5f_dict1 maps demand sectors → fuel sub-sectors:
                 #   e.g. "...|Industry" → ["...|Industry|Coal", "...|Industry|Gas", ...]
                 # step5f_dict2 maps supply sectors → fuel sub-sectors:
                 #   e.g. "...|Electricity" → ["...|Electricity|Coal", "...|Electricity|Gas", ...]
+                SHARE_FLOOR = 1.0  # Mt CO2/yr
                 if harmo_results:
                     from itertools import chain
                     all_dicts = chain(step5f_dict1.items(), step5f_dict2.items())
@@ -430,17 +469,31 @@ def main(
                         if main_var in harmo_results:
                             old_main = fun_xs(df_for_hist, {'VARIABLE': main_var})
                             new_main = harmo_results[main_var]
-                            # ratio = new_harmonized / old_pre_harmonization (per country, per year)
-                            # Where old = 0, ratio = NaN → sub-sector stays at 0
                             common_cols = sorted(set(old_main.columns) & set(new_main.columns))
-                            ratio = new_main[common_cols] / old_main[common_cols].replace(0, np.nan)
+                            old_main_c = old_main[common_cols]
+                            new_main_c = new_main[common_cols]
+                            # Years where the Stage 2 total is large enough for its
+                            # fuel split to be a meaningful (non-noise) signal.
+                            stable = old_main_c.abs() >= SHARE_FLOOR
                             for sub_var in sub_vars:
                                 sub_data = fun_xs(df_for_hist, {'VARIABLE': sub_var})
                                 if len(sub_data) > 0:
-                                    # Align ratio's VARIABLE index level to match sub_var
-                                    # (ratio has main_var in its index, sub_data has sub_var)
-                                    ratio_aligned = ratio.rename(index={main_var: sub_var}, level='VARIABLE')
-                                    harmo_results[sub_var] = sub_data[common_cols] * ratio_aligned[common_cols]
+                                    # Align sub_data's VARIABLE index level to match
+                                    # main_var so it lines up with old_main/stable.
+                                    sub_data_aligned = sub_data[common_cols].rename(
+                                        index={sub_var: main_var}, level='VARIABLE'
+                                    )
+                                    raw_share = sub_data_aligned / old_main_c.replace(0, np.nan)
+                                    # Keep the share only in stable years; carry the
+                                    # last stable share forward through noisy years.
+                                    # Leading years with no stable history yet fall
+                                    # back to the raw (possibly noisy) share.
+                                    share = raw_share.where(stable).ffill(axis=1)
+                                    share = share.fillna(raw_share)
+                                    result = new_main_c * share
+                                    harmo_results[sub_var] = result.rename(
+                                        index={main_var: sub_var}, level='VARIABLE'
+                                    )
 
                     # -- Reassemble the full DataFrame --
                     # Remove old versions of all harmonized variables (main + sub-sectors),
@@ -536,10 +589,23 @@ def main(
     #   (1) Standard: deviation from neighbor midpoint > 5× |midpoint| + 0.1
     #       Catches sharp isolated spikes (e.g. GEO Industry 2060).
     #   (2) Local-extremum: the year is a local min/max (V-shape) AND deviation
-    #       > 0.75× |midpoint| + 0.1, restricted to Energy variables.
+    #       > 0.75× |midpoint| + 0.1, restricted to Energy variables AND to rows
+    #       whose interpolated midpoint is below EXTREMUM_MAGNITUDE_CEILING.
     #       Catches shallower but clearly anomalous dips that survive check (1)
     #       because both immediate neighbours are also pulled toward the artifact
     #       (e.g. MDA Industry 2060: -2.6 → -5.0 → -2.8).
+    #
+    #       The magnitude ceiling was added after finding that, at larger scale,
+    #       relative-deviation alone can't tell a real artifact from a real
+    #       economic swing: e.g. ZAF Emissions|CO2|Energy|Demand|Industry|Solids|
+    #       Coal genuinely jumps 28.5 -> 46.0 -> 15.7 Mt CO2/yr (2025/2030/2035)
+    #       because coal final energy jumps +72% that period — but its relative
+    #       deviation (1.09x) is actually *larger* than MDA's original artifact
+    #       (0.85x), so no single threshold can catch one without the other.
+    #       Restricting check (2) to small absolute magnitudes (where nearly all
+    #       of its flags already concentrate — the near-zero-denominator noise it
+    #       was designed for) avoids overwriting real large-scale trajectories
+    #       while still catching the near-zero noise case.
     #
     # NOTE: must run BEFORE the 2065 midpoint fix so that a spiked 2060 is
     # checked against the clean Stage-2 2065 (not a value derived from the spike).
@@ -548,6 +614,7 @@ def main(
     _rel_threshold = 5.0    # standard isolated-spike threshold
     _rel_extremum   = 0.75  # local-extremum (V-shape) threshold
     _abs_threshold  = 0.1   # floor: 0.1 Mt CO2/yr
+    _extremum_magnitude_ceiling = 5.0  # Mt CO2/yr: check (2) only below this scale
     _n_fixed = 0
     # Boolean mask: rows that are Energy sector variables (not LULUCF/AFOLU/totals)
     _energy_mask = df.index.get_level_values('VARIABLE').str.contains('Energy', na=False)
@@ -557,13 +624,14 @@ def main(
         _deviation = (_df[_curr] - _interp).abs()
         # Check (1): standard threshold
         _is_spike = _deviation > (_rel_threshold * _interp.abs() + _abs_threshold)
-        # Check (2): local extremum in Energy variables
+        # Check (2): local extremum in Energy variables, small magnitude only
         _diff_left  = _df[_curr] - _df[_prev]
         _diff_right = _df[_next] - _df[_curr]
         _is_extremum = (_diff_left * _diff_right) < 0   # direction reverses at _curr
         _is_spike_extremum = (
             _energy_mask
             & _is_extremum
+            & (_interp.abs() < _extremum_magnitude_ceiling)
             & (_deviation > (_rel_extremum * _interp.abs() + _abs_threshold))
         )
         _is_spike = _is_spike | _is_spike_extremum

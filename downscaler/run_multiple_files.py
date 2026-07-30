@@ -117,7 +117,7 @@ def main_with_yaml_config(config_file_name: str, coerce_errors:bool=False, **kwa
 if __name__ == "__main__":
     main_with_yaml_config(
         config_file_name="REMIND_Q1_2026/config.yaml", # NGFS 2024 not working
-        file_suffix = "09_03_2026", 
+        file_suffix = "27_07_2026", 
         list_of_models=["REMIND 3.4"], # To run step5f, we need the exact name atm
         list_of_regions=["*"], 
         list_of_targets=["NPE-core"], # To run step5f, we need the exact name atm
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         random_electricity_weights=False,
         n_jobs=8,
         
-        step0=False, # stsep0 finish by asking if you want to produce a subset SSP projections just for the regions/countries you want
+        step0=False, # step0 finish by asking if you want to produce a subset SSP projections just for the regions/countries you want
 
         # When steps are commented, it will do like in the config.yml file
         # step1=False,
@@ -142,7 +142,7 @@ if __name__ == "__main__":
         # step5c_bis=False,  # hydrogen share aynd trade variables
         # step5c_tris=False,  # afolu
         # step5d=False,  # eu27 and aggregate results from multiple files
-        # step5g=False,  # synfuels calculation (auto-detects regions with data)
+        # # step5g=False,  # synfuels calculation (auto-detects regions with data)
         # step5e=False,  # harmonize with historical data
         # step5h=False, # compute SE|Elec|Hydrogen
         # step4=False,
