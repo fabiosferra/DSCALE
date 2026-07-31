@@ -61,3 +61,4 @@ MANIFEST
 
 # version number
 downscaler/_version.py
+input_data/input_reference_iea_2022.csv
